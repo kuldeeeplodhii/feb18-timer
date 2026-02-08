@@ -2,79 +2,131 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Class 12 Humanities – Exam Tracker</title>
+<title>Class 12 Humanities – Retro Exam Console</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- RETRO FONT -->
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
 <style>
+:root {
+  --neon: #00ffe0;
+  --pink: #ff4fd8;
+  --bg1: #020617;
+  --bg2: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #020617;
-  color: #e5e7eb;
+  font-family: 'VT323', monospace;
+  background: linear-gradient(-45deg, var(--bg1), var(--bg2), #020617);
+  background-size: 400% 400%;
+  animation: wave 12s ease infinite;
+  color: var(--neon);
+}
+
+/* WAVY BACKGROUND */
+@keyframes wave {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: auto;
   padding: 20px;
 }
 
+/* CRT CARD */
 .card {
-  background: rgba(255,255,255,0.08);
-  border-radius: 16px;
+  background: rgba(0,0,0,0.6);
+  border: 2px solid var(--neon);
+  border-radius: 8px;
   padding: 20px;
   margin-bottom: 20px;
+  box-shadow: 0 0 15px rgba(0,255,224,.3);
+  animation: glow 2s infinite alternate;
 }
 
-h1, h2 {
+@keyframes glow {
+  from { box-shadow: 0 0 10px rgba(0,255,224,.2); }
+  to   { box-shadow: 0 0 25px rgba(0,255,224,.6); }
+}
+
+h1, h2, h3 {
   margin-top: 0;
+  text-shadow: 0 0 8px rgba(0,255,224,.7);
 }
 
 /* TIMER */
+.timer {
+  font-size: 26px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
 .progress-bar {
-  background: #020617;
-  border-radius: 999px;
-  overflow: hidden;
-  height: 16px;
+  height: 14px;
+  border: 1px solid var(--neon);
 }
 
 .progress {
   height: 100%;
-  background: linear-gradient(90deg, #38bdf8, #818cf8);
   width: 0%;
+  background: linear-gradient(90deg, var(--neon), var(--pink));
   transition: width 1s linear;
 }
 
-.timer {
-  text-align: center;
-  font-size: 1.3rem;
-  margin: 10px 0;
-}
-
-/* DATE SHEET */
+/* SUBJECT LIST */
 .subject {
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
   cursor: pointer;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px dashed var(--neon);
 }
 
 .subject:hover {
-  background: rgba(255,255,255,0.12);
+  background: rgba(0,255,224,.1);
+  transform: translateX(4px);
 }
 
-/* SYLLABUS */
-.topic {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
+/* ACCORDION */
+.unit {
+  margin-top: 15px;
 }
 
-.topic input {
-  margin-right: 10px;
+.unit-title {
+  cursor: pointer;
+  color: var(--pink);
+}
+
+.unit-title:hover {
+  text-shadow: 0 0 6px var(--pink);
+}
+
+.topics {
+  margin-left: 20px;
+  display: none;
+  animation: drop .3s ease;
+}
+
+@keyframes drop {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+label {
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--neon);
+  transform: scale(1.2);
+  margin-right: 6px;
 }
 </style>
 </head>
@@ -83,156 +135,131 @@ h1, h2 {
 
 <div class="container">
 
-  <!-- TIMER -->
-  <div class="card">
-    <h1>⏳ Countdown to First Exam (PHE)</h1>
-    <div class="timer" id="timeLeft"></div>
-    <div class="progress-bar">
-      <div class="progress" id="progress"></div>
-    </div>
-    <p style="opacity:.7; text-align:center;">From 1 Feb → 18 Feb 2026</p>
+<!-- TIMER -->
+<div class="card">
+  <h1>📼 EXAM COUNTDOWN</h1>
+  <div class="timer" id="timeLeft"></div>
+  <div class="progress-bar">
+    <div class="progress" id="progress"></div>
   </div>
+  <p style="text-align:center;">1 Feb 2026 → 18 Feb 2026 (PHE)</p>
+</div>
 
-  <!-- DATE SHEET -->
-  <div class="card">
-    <h2>📅 Class 12 Humanities Date Sheet</h2>
+<!-- SUBJECTS -->
+<div class="card">
+  <h2>🗓️ DATE SHEET</h2>
 
-    <div class="subject" onclick="loadSyllabus('phe')">
-      <span>PHE</span>
-      <span>18 Feb 2026</span>
-    </div>
+  <div class="subject" onclick="load('geo')">GEOGRAPHY — 26 Feb 2026</div>
+  <div class="subject" onclick="load('phe')">PHE — 18 Feb 2026</div>
+  <div class="subject" onclick="load('fa')">FINE ARTS — 27 Feb 2026</div>
 
-    <div class="subject" onclick="loadSyllabus('geo')">
-      <span>Geography</span>
-      <span>26 Feb 2026</span>
-    </div>
+</div>
 
-    <div class="subject" onclick="loadSyllabus('fa')">
-      <span>Fine Arts</span>
-      <span>27 Feb 2026</span>
-    </div>
-
-    <div class="subject" onclick="loadSyllabus('eng')">
-      <span>English</span>
-      <span>12 Mar 2026</span>
-    </div>
-
-    <div class="subject" onclick="loadSyllabus('pol')">
-      <span>Political Science</span>
-      <span>23 Mar 2026</span>
-    </div>
-
-    <div class="subject" onclick="loadSyllabus('his')">
-      <span>History</span>
-      <span>30 Mar 2026</span>
-    </div>
-  </div>
-
-  <!-- SYLLABUS -->
-  <div class="card">
-    <h2 id="subjectTitle">📘 Select a subject</h2>
-    <div id="syllabus"></div>
-  </div>
+<!-- SYLLABUS -->
+<div class="card">
+  <h2 id="title">SELECT A SUBJECT</h2>
+  <div id="syllabus"></div>
+</div>
 
 </div>
 
 <script>
-/* ===== TIMER ===== */
-const startDate = new Date("2026-02-01T00:00:00");
-const firstExam = new Date("2026-02-18T00:00:00");
+/* TIMER */
+const start = new Date("2026-02-01");
+const end = new Date("2026-02-18");
 
-function format(ms) {
-  const s = Math.floor(ms / 1000);
-  const d = Math.floor(s / 86400);
-  const h = Math.floor((s % 86400) / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  return `${d}d ${h}h ${m}m ${sec}s`;
+function fmt(ms){
+  const s = Math.floor(ms/1000);
+  return `${Math.floor(s/86400)}d ${Math.floor(s%86400/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`;
 }
 
-function updateTimer() {
+setInterval(()=>{
   const now = new Date();
-  const total = firstExam - startDate;
-  const passed = now - startDate;
-  const left = firstExam - now;
-
-  if (left <= 0) {
-    document.getElementById("timeLeft").innerText = "📘 PHE Exam Day!";
-    document.getElementById("progress").style.width = "100%";
-    return;
-  }
-
-  const percent = Math.min((passed / total) * 100, 100);
-  document.getElementById("progress").style.width = percent + "%";
+  const left = end-now;
+  const passed = now-start;
   document.getElementById("timeLeft").innerText =
-    format(left) + " remaining";
-}
+    left>0 ? fmt(left)+" LEFT" : "EXAM DAY";
+  document.getElementById("progress").style.width =
+    Math.min((passed/(end-start))*100,100)+"%";
+},1000);
 
-updateTimer();
-setInterval(updateTimer, 1000);
+/* SYLLABUS DATA */
+const syllabus = {
+  geo: {
+    "Part A: Fundamentals of Human Geography": {
+      "Unit 1: Nature & Scope": [
+        "Human Geography – Meaning & Scope"
+      ],
+      "Unit 2: People": [
+        "World Population – Distribution",
+        "Density & Growth",
+        "Population Change",
+        "Demographic Transition",
+        "Human Development – Concept"
+      ],
+      "Unit 3: Human Activities": [
+        "Primary Activities – Mining, Agriculture",
+        "Secondary Activities – Manufacturing",
+        "Tertiary Activities – Trade & Services",
+        "Quaternary Activities"
+      ]
+    }
+  },
 
-/* ===== SYLLABUS DATA ===== */
-const data = {
-  phe: [
-    "Planning in Sports",
-    "Sports & Nutrition",
-    "Yoga",
-    "Psychology & Sports"
-  ],
-  geo: [
-    "Human Geography",
-    "Resources & Development",
-    "Transport & Communication",
-    "Map Work"
-  ],
-  fa: [
-    "Indian Art",
-    "Modern Art",
-    "Portfolio Work",
-    "Art Terminology"
-  ],
-  eng: [
-    "Flamingo",
-    "Vistas",
-    "Writing Skills",
-    "Reading Comprehension"
-  ],
-  pol: [
-    "Contemporary World Politics",
-    "Indian Politics",
-    "Political Theory",
-    "Globalisation"
-  ],
-  his: [
-    "Bricks, Beads & Bones",
-    "Kings & Chronicles",
-    "Colonialism",
-    "Maps & Sources"
-  ]
+  phe: {
+    "Unit 1: Management of Sporting Events": [
+      "Planning, Organising, Staffing",
+      "Committees & Responsibilities",
+      "Fixtures – Knockout & League"
+    ],
+    "Unit 2: Children & Women in Sports": [
+      "WHO Exercise Guidelines",
+      "Postural Deformities",
+      "Female Athlete Triad"
+    ]
+  },
+
+  fa: {
+    "Theory – History of Indian Art": [
+      "Rajasthani School",
+      "Mughal School",
+      "Bengal School",
+      "Contemporary Indian Art"
+    ]
+  }
 };
 
-/* ===== LOAD SYLLABUS ===== */
-function loadSyllabus(subject) {
-  document.getElementById("subjectTitle").innerText =
-    "📘 " + subject.toUpperCase();
-
+/* LOAD */
+function load(sub){
+  document.getElementById("title").innerText = sub.toUpperCase();
   const box = document.getElementById("syllabus");
   box.innerHTML = "";
 
-  data[subject].forEach((topic, i) => {
-    const id = subject + i;
-    const checked = localStorage.getItem(id) === "true";
+  Object.entries(syllabus[sub]).forEach(([unit, topics])=>{
+    const u = document.createElement("div");
+    u.className="unit";
+    u.innerHTML = `<div class="unit-title" onclick="this.nextElementSibling.style.display =
+      this.nextElementSibling.style.display==='block'?'none':'block'">▶ ${unit}</div>`;
+    const t = document.createElement("div");
+    t.className="topics";
 
-    box.innerHTML += `
-      <div class="topic">
-        <input type="checkbox" id="${id}" ${checked ? "checked" : ""}
-          onchange="localStorage.setItem('${id}', this.checked)">
-        <label for="${id}">${topic}</label>
-      </div>
-    `;
+    topics.forEach((topic,i)=>{
+      const id=sub+unit+i;
+      t.innerHTML+=`
+        <div>
+          <input type="checkbox" id="${id}"
+            ${localStorage[id]=="1"?"checked":""}
+            onchange="localStorage['${id}']=this.checked?1:0">
+          <label for="${id}">${topic}</label>
+        </div>`;
+    });
+
+    u.appendChild(t);
+    box.appendChild(u);
   });
 }
 </script>
 
 </body>
 </html>
+

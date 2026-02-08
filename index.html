@@ -43,16 +43,17 @@
             position: fixed;
             background: white;
             border-radius: 50%;
-            z-index: -1;
+            z-index: 0; /* Fixed: Ensure it sits on top of body bg but below content */
             pointer-events: none;
             opacity: 0;
             animation: twinkle var(--duration) ease-in-out infinite;
             animation-delay: var(--delay);
+            box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
         }
 
         @keyframes twinkle {
             0% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: var(--opacity); transform: scale(1); }
+            50% { opacity: var(--opacity); transform: scale(1.2); }
             100% { opacity: 0; transform: scale(0.5); }
         }
 
@@ -63,7 +64,7 @@
             padding: 2rem;
             width: 100%;
             position: relative;
-            z-index: 1;
+            z-index: 10; /* Fixed: Ensure content is above stars */
         }
 
         .hidden { display: none !important; }
@@ -1045,7 +1046,7 @@
     
     // --- Stars Background ---
     function createStars() {
-        const count = 50;
+        const count = 100; // Increased count
         const body = document.body;
         for (let i = 0; i < count; i++) {
             const star = document.createElement('div');

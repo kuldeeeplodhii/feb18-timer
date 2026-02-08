@@ -2,119 +2,128 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Countdown to 18 Feb</title>
+<title>Exam Countdown & Syllabus Tracker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root {
-  --bg: #020617;
-  --card: rgba(255,255,255,0.08);
-  --accent: #38bdf8;
-  --text: #e5e7eb;
-}
-
-* {
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
-}
-
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #0f172a, var(--bg));
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-family: system-ui, sans-serif;
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
 }
 
 .card {
-  width: 90%;
-  max-width: 480px;
-  background: var(--card);
-  backdrop-filter: blur(14px);
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
-h1 {
-  text-align: center;
-  margin: 0 0 15px;
-  font-size: 1.8rem;
+h1, h2 {
+  margin-top: 0;
 }
 
-.big-time {
-  text-align: center;
-  font-size: 1.4rem;
-  margin-bottom: 15px;
-}
-
-.progress-wrap {
+/* TIMER */
+.progress-bar {
   background: #020617;
   border-radius: 999px;
   overflow: hidden;
-  height: 18px;
-  margin: 12px 0;
+  height: 16px;
 }
 
 .progress {
   height: 100%;
-  width: 0%;
   background: linear-gradient(90deg, #38bdf8, #818cf8);
+  width: 0%;
   transition: width 1s linear;
 }
 
-.stats {
+.timer {
+  text-align: center;
+  font-size: 1.3rem;
+  margin: 10px 0;
+}
+
+/* DATE SHEET */
+.subject {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  cursor: pointer;
+  margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-top: 8px;
 }
 
-.percent {
-  text-align: center;
-  margin-top: 10px;
-  font-size: 0.95rem;
-  opacity: 0.85;
+.subject:hover {
+  background: rgba(255,255,255,0.12);
 }
 
-.footer {
-  text-align: center;
-  margin-top: 18px;
-  font-size: 0.8rem;
-  opacity: 0.6;
+/* SYLLABUS */
+.topic {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.topic input {
+  margin-right: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h1>⏳ Countdown to 18 February</h1>
+<div class="container">
 
-  <div class="big-time" id="timeLeft">Loading...</div>
-
-  <div class="progress-wrap">
-    <div class="progress" id="progress"></div>
+  <!-- TIMER -->
+  <div class="card">
+    <h1>⏳ Exam Countdown</h1>
+    <div class="timer" id="timeLeft"></div>
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
   </div>
 
-  <div class="stats">
-    <span id="timePassed"></span>
-    <span id="timeRemaining"></span>
+  <!-- DATE SHEET -->
+  <div class="card">
+    <h2>📅 Date Sheet</h2>
+
+    <div class="subject" onclick="loadSyllabus('maths')">
+      <span>Mathematics</span>
+      <span>5 Feb</span>
+    </div>
+
+    <div class="subject" onclick="loadSyllabus('physics')">
+      <span>Physics</span>
+      <span>10 Feb</span>
+    </div>
+
+    <div class="subject" onclick="loadSyllabus('chemistry')">
+      <span>Chemistry</span>
+      <span>15 Feb</span>
+    </div>
   </div>
 
-  <div class="percent" id="percentDone"></div>
-
-  <div class="footer">
-    ticking every second ⏱️
+  <!-- SYLLABUS -->
+  <div class="card">
+    <h2 id="subjectTitle">📘 Select a subject</h2>
+    <div id="syllabus"></div>
   </div>
+
 </div>
 
 <script>
-const startDate = new Date("2026-01-01T00:00:00");
-const targetDate = new Date("2026-02-18T00:00:00");
+/* ===== TIMER ===== */
+const startDate = new Date("2026-02-01T00:00:00");
+const endDate = new Date("2026-02-18T00:00:00");
 
 function format(ms) {
   const s = Math.floor(ms / 1000);
@@ -125,32 +134,72 @@ function format(ms) {
   return `${d}d ${h}h ${m}m ${sec}s`;
 }
 
-function update() {
+function updateTimer() {
   const now = new Date();
-  const total = targetDate - startDate;
+  const total = endDate - startDate;
   const passed = now - startDate;
-  const left = targetDate - now;
+  const left = endDate - now;
 
   if (left <= 0) {
-    document.getElementById("timeLeft").innerText = "🎉 It's 18 February!";
+    document.getElementById("timeLeft").innerText = "🎉 Exams Started!";
     document.getElementById("progress").style.width = "100%";
-    document.getElementById("percentDone").innerText = "100% completed";
     return;
   }
 
   const percent = Math.min((passed / total) * 100, 100);
-
   document.getElementById("progress").style.width = percent + "%";
-  document.getElementById("timeLeft").innerText = format(left) + " left";
-  document.getElementById("timePassed").innerText = "Passed: " + format(passed);
-  document.getElementById("timeRemaining").innerText = "Remaining: " + format(left);
-  document.getElementById("percentDone").innerText =
-    percent.toFixed(2) + "% completed";
+  document.getElementById("timeLeft").innerText =
+    format(left) + " remaining";
 }
 
-update();
-setInterval(update, 1000);
+updateTimer();
+setInterval(updateTimer, 1000);
+
+/* ===== SYLLABUS DATA ===== */
+const data = {
+  maths: [
+    "Limits & Continuity",
+    "Differentiation",
+    "Integration",
+    "Probability"
+  ],
+  physics: [
+    "Kinematics",
+    "Laws of Motion",
+    "Work & Energy",
+    "Modern Physics"
+  ],
+  chemistry: [
+    "Atomic Structure",
+    "Thermodynamics",
+    "Electrochemistry",
+    "Organic Reactions"
+  ]
+};
+
+/* ===== LOAD SYLLABUS ===== */
+function loadSyllabus(subject) {
+  document.getElementById("subjectTitle").innerText =
+    "📘 " + subject.charAt(0).toUpperCase() + subject.slice(1);
+
+  const box = document.getElementById("syllabus");
+  box.innerHTML = "";
+
+  data[subject].forEach((topic, i) => {
+    const id = subject + i;
+    const checked = localStorage.getItem(id) === "true";
+
+    box.innerHTML += `
+      <div class="topic">
+        <input type="checkbox" id="${id}" ${checked ? "checked" : ""}
+          onchange="localStorage.setItem('${id}', this.checked)">
+        <label for="${id}">${topic}</label>
+      </div>
+    `;
+  });
+}
 </script>
 
 </body>
 </html>
+

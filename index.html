@@ -1,342 +1,639 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Class 12 Humanities – Exam Planner</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Humanities Board Prep 2026</title>
 <style>
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
-  background: #0b1220;
-  color: #e5e7eb;
+:root {
+--bg-color: #0d0e10;
+--card-bg: #1a1c20;
+--accent-color: #6366f1;
+--text-main: #e2e8f0;
+--text-muted: #94a3b8;
+--border-color: #2d3139;
+--success: #10b981;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 24px;
-}
+```
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
 
-.card {
-  background: #0f172a;
-  border-radius: 14px;
-  padding: 22px;
-  margin-bottom: 22px;
-  border: 1px solid rgba(255,255,255,0.06);
-  transition: transform .25s ease, box-shadow .25s ease;
-}
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
 
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(0,0,0,.35);
-}
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
 
-h1,h2,h3 {
-  margin-top: 0;
-}
+    /* Header & Countdown */
+    header {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
 
-/* TIMER */
-.timer {
-  text-align: center;
-  font-size: 1.4rem;
-  margin-bottom: 12px;
-}
+    h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
-.progress-bar {
-  height: 14px;
-  background: rgba(255,255,255,.1);
-  border-radius: 999px;
-  overflow: hidden;
-}
+    .countdown-container {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
 
-.progress {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg,#38bdf8,#818cf8);
-  transition: width 1s linear;
-}
+    .timer {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
 
-/* DATE SHEET */
-.subject {
-  padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  transition: background .2s ease, transform .15s ease;
-}
+    .timer-segment {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 70px;
+    }
 
-.subject:hover {
-  background: rgba(255,255,255,.06);
-  transform: translateX(4px);
-}
+    .timer-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        color: var(--accent-color);
+    }
 
-/* SYLLABUS */
-.unit {
-  margin-top: 18px;
-}
+    .timer-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+    }
 
-.unit-title {
-  font-weight: 600;
-  cursor: pointer;
-  padding: 8px 0;
-  transition: color .2s ease;
-}
+    .progress-wrapper {
+        height: 8px;
+        background: #2d3139;
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+    }
 
-.unit-title:hover {
-  color: #38bdf8;
-}
+    #progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-color), #818cf8);
+        width: 0%;
+        transition: width 1s linear;
+    }
 
-.topics {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height .45s cubic-bezier(.2,.8,.2,1);
-  margin-left: 18px;
-}
+    /* Dashboard Grid */
+    .dashboard {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
 
-.topic {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin: 6px 0;
-}
+    /* Sidebar / Date Sheet */
+    .sidebar {
+        position: sticky;
+        top: 2rem;
+    }
 
-input[type="checkbox"] {
-  accent-color: #38bdf8;
-  transform: scale(1.1);
-  transition: transform .15s ease;
-}
+    .section-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        letter-spacing: 0.05em;
+    }
 
-input[type="checkbox"]:checked {
-  transform: scale(1.25);
-}
+    .date-sheet {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .subject-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .subject-card:hover {
+        transform: translateX(4px);
+        border-color: var(--accent-color);
+        background: #23252b;
+    }
+
+    .subject-card.active {
+        border-color: var(--accent-color);
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .subject-info h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .subject-info p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    /* Syllabus Panel */
+    .syllabus-panel {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        min-height: 600px;
+    }
+
+    .syllabus-header {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .unit-container {
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .unit-trigger {
+        width: 100%;
+        padding: 1.25rem;
+        background: none;
+        border: none;
+        color: var(--text-main);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: left;
+        transition: background 0.2s ease;
+    }
+
+    .unit-trigger:hover {
+        background: rgba(255,255,255,0.03);
+    }
+
+    .unit-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(0,0,0,0.2);
+    }
+
+    .unit-content.open {
+        max-height: 2000px;
+    }
+
+    .topic-list {
+        padding: 1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .sub-topic-list {
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        padding-left: 1rem;
+        border-left: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    /* Checkbox Styling */
+    .item-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 4px 0;
+    }
+
+    .checkbox-container {
+        position: relative;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    input[type="checkbox"] {
+        opacity: 0;
+        position: absolute;
+        cursor: pointer;
+    }
+
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 18px;
+        width: 18px;
+        background: transparent;
+        border: 2px solid var(--border-color);
+        border-radius: 4px;
+        transition: var(--transition);
+    }
+
+    input:checked ~ .checkmark {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        transform: scale(1.1);
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 5px;
+        top: 1px;
+        width: 4px;
+        height: 8px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    .item-text {
+        transition: var(--transition);
+    }
+
+    input:checked ~ .item-text {
+        color: var(--text-muted);
+        text-decoration: line-through;
+    }
+
+    .overall-progress {
+        font-size: 0.8rem;
+        color: var(--accent-color);
+        font-weight: 600;
+    }
+
+    @media (max-width: 850px) {
+        .dashboard {
+            grid-template-columns: 1fr;
+        }
+        .sidebar {
+            position: static;
+        }
+        .timer {
+            gap: 0.5rem;
+        }
+        .timer-value {
+            font-size: 1.8rem;
+        }
+    }
 </style>
-</head>
 
+```
+
+</head>
 <body>
 
 <div class="container">
+<header>
+<h1>Board Examination 2026</h1>
+<div class="countdown-container">
+<div class="timer" id="countdown">
+<div class="timer-segment">
+<span class="timer-value" id="days">00</span>
+<span class="timer-label">Days</span>
+</div>
+<div class="timer-segment">
+<span class="timer-value" id="hours">00</span>
+<span class="timer-label">Hours</span>
+</div>
+<div class="timer-segment">
+<span class="timer-value" id="minutes">00</span>
+<span class="timer-label">Mins</span>
+</div>
+<div class="timer-segment">
+<span class="timer-value" id="seconds">00</span>
+<span class="timer-label">Secs</span>
+</div>
+</div>
+<div class="progress-wrapper">
+<div id="progress-bar"></div>
+</div>
+<p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted)">Time remaining until Physical Education Examination</p>
+</div>
+</header>
 
-<!-- TIMER -->
-<div class="card">
-  <h1>⏳ Exam Countdown</h1>
-  <div class="timer" id="timeLeft"></div>
-  <div class="progress-bar">
-    <div class="progress" id="progress"></div>
-  </div>
-  <p style="text-align:center;opacity:.7;">1 Feb 2026 → 18 Feb 2026 (PHE)</p>
+```
+<div class="dashboard">
+    <aside class="sidebar">
+        <p class="section-label">Examination Schedule</p>
+        <div class="date-sheet" id="date-sheet">
+            </div>
+    </aside>
+
+    <main class="syllabus-panel">
+        <div class="syllabus-header">
+            <div>
+                <h2 id="current-subject-title">Select a Subject</h2>
+                <p id="current-subject-code" style="font-size: 0.8rem; color: var(--text-muted)"></p>
+            </div>
+            <div class="overall-progress" id="subject-progress">0% Complete</div>
+        </div>
+        <div id="syllabus-content">
+            <p style="color: var(--text-muted); text-align: center; margin-top: 4rem;">Select a subject from the date sheet to view its detailed syllabus.</p>
+        </div>
+    </main>
 </div>
 
-<!-- DATE SHEET -->
-<div class="card">
-  <h2>📅 Date Sheet</h2>
-
-  <div class="subject" onclick="loadSubject('geo')">
-    <span>Geography</span><span>26 Feb 2026</span>
-  </div>
-
-  <div class="subject" onclick="loadSubject('phe')">
-    <span>PHE</span><span>18 Feb 2026</span>
-  </div>
-
-  <div class="subject" onclick="loadSubject('fa')">
-    <span>Fine Arts</span><span>27 Feb 2026</span>
-  </div>
-</div>
-
-<!-- SYLLABUS -->
-<div class="card">
-  <h2 id="subjectTitle">📘 Select a subject</h2>
-  <div id="syllabus"></div>
-</div>
+```
 
 </div>
 
 <script>
-/* TIMER */
-const startDate = new Date("2026-02-01T00:00:00");
-const firstExam = new Date("2026-02-18T00:00:00");
+const examDate = new Date('February 18, 2026 10:30:00').getTime();
+const startDate = new Date('February 1, 2026 00:00:00').getTime();
 
-function format(ms) {
-  const s = Math.floor(ms / 1000);
-  return `${Math.floor(s/86400)}d ${Math.floor(s%86400/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`;
-}
+```
+// Subject Data
+const subjects = [
+    { id: &#39;phe&#39;, name: &#39;Physical Education&#39;, code: &#39;048&#39;, date: &#39;18 Feb 2026&#39; },
+    { id: &#39;geo&#39;, name: &#39;Geography&#39;, code: &#39;029&#39;, date: &#39;26 Feb 2026&#39; },
+    { id: &#39;arts&#39;, name: &#39;Fine Arts&#39;, code: &#39;049&#39;, date: &#39;27 Feb 2026&#39; },
+    { id: &#39;eng&#39;, name: &#39;English&#39;, code: &#39;301&#39;, date: &#39;12 Mar 2026&#39; },
+    { id: &#39;pol&#39;, name: &#39;Political Science&#39;, code: &#39;028&#39;, date: &#39;23 Mar 2026&#39; },
+    { id: &#39;hist&#39;, name: &#39;History&#39;, code: &#39;027&#39;, date: &#39;30 Mar 2026&#39; }
+];
 
+const syllabusData = {
+    &#39;phe&#39;: [
+        {
+            unit: &#39;Unit 1: Management of Sporting Events&#39;,
+            topics: [
+                { title: &#39;Functions of Sports Events Management&#39;, sub: [&#39;Planning&#39;, &#39;Organising&#39;, &#39;Staffing&#39;, &#39;Directing&#39;, &#39;Controlling&#39;] },
+                { title: &#39;Committees &amp; Responsibilities (Pre, During, Post)&#39; },
+                { title: &#39;Fixtures&#39;, sub: [&#39;Knock-Out (Bye &amp; Seeding)&#39;, &#39;League (Staircase, Cyclic, Tabular)&#39;] },
+                { title: &#39;Intramural &amp; Extramural Tournaments&#39; },
+                { title: &#39;Community Sports Programmes&#39; }
+            ]
+        },
+        {
+            unit: &#39;Unit 2: Children &amp; Women in Sports&#39;,
+            topics: [
+                { title: &#39;WHO Exercise Guidelines&#39; },
+                { title: &#39;Postural Deformities&#39;, sub: [&#39;Knock Knee&#39;, &#39;Flat Foot&#39;, &#39;Round Shoulders&#39;, &#39;Lordosis&#39;, &#39;Kyphosis&#39;, &#39;Scoliosis&#39;, &#39;Bow Legs&#39;] },
+                { title: &#39;Women’s Participation in Sports&#39; },
+                { title: &#39;Menarche &amp; Menstrual Dysfunction&#39; },
+                { title: &#39;Female Athlete Triad&#39; }
+            ]
+        },
+        {
+            unit: &#39;Unit 3: Yoga for Lifestyle Diseases&#39;,
+            topics: [
+                { title: &#39;Obesity (Asanas, Benefits, Contraindications)&#39; },
+                { title: &#39;Diabetes (Asanas, Benefits, Contraindications)&#39; },
+                { title: &#39;Asthma (Asanas, Benefits, Contraindications)&#39; },
+                { title: &#39;Hypertension (Asanas, Benefits, Contraindications)&#39; },
+                { title: &#39;Back Pain &amp; Arthritis (Asanas, Benefits, Contraindications)&#39; }
+            ]
+        },
+        {
+            unit: &#39;Unit 4: Physical Education &amp; Sports for CWSN&#39;,
+            topics: [
+                { title: &#39;Special Olympics&#39; },
+                { title: &#39;Paralympics&#39; },
+                { title: &#39;Deaflympics&#39; },
+                { title: &#39;Classification &amp; Divisioning&#39; },
+                { title: &#39;Inclusion in Sports&#39; }
+            ]
+        },
+        {
+            unit: &#39;Unit 5: Sports &amp; Nutrition&#39;,
+            topics: [
+                { title: &#39;Balanced Diet&#39; },
+                { title: &#39;Macro &amp; Micro Nutrients&#39; },
+                { title: &#39;Nutritive &amp; Non-Nutritive Components&#39; },
+                { title: &#39;Eating for Weight Control&#39; },
+                { title: &#39;Food Myths &amp; Food Intolerance&#39; },
+                { title: &#39;Pre, During &amp; Post Competition Diet&#39; }
+            ]
+        },
+        {
+            unit: &#39;Unit 6: Test &amp; Measurement in Sports&#39;,
+            topics: [
+                { title: &#39;SAI Khelo India Fitness Test&#39; },
+                { title: &#39;BMI&#39; },
+                { title: &#39;50m Speed Test&#39;, title: &#39;600m Run/Walk&#39;, title: &#39;Sit &amp; Reach Test&#39;, title: &#39;Strength Tests&#39; }
+            ]
+        }
+    ],
+    &#39;geo&#39;: [
+        {
+            unit: &#39;Part A: Fundamentals of Human Geography&#39;,
+            topics: [
+                { title: &#39;Unit 1: Human Geography – Nature and Scope&#39; },
+                { title: &#39;Unit 2: People&#39;, sub: [&#39;World Population - Distribution, Density, Growth&#39;, &#39;Components of Population Change&#39;, &#39;Demographic Transition&#39;, &#39;Human Development Concept&#39;, &#39;International Comparisons&#39;] },
+                { title: &#39;Unit 3: Human Activities&#39;, sub: [&#39;Primary: Mining, Pastoral, Modern Agriculture, Gathering, Subsistence&#39;, &#39;Secondary: Manufacturing (Household, Small, Large), Agro &amp; Mineral based&#39;, &#39;Tertiary: Trade, Transport, Tourism, Services&#39;, &#39;Quaternary Activities Concept&#39;] },
+                { title: &#39;Unit 4: Transport, Communication &amp; Trade&#39;, sub: [&#39;Land Transport: Roads, Railways&#39;, &#39;Water: Inland, Ocean Routes&#39;, &#39;Air &amp; Pipelines&#39;, &#39;Satellite Communication &amp; Cyberspace&#39;, &#39;International Trade &amp; WTO&#39;, &#39;Ports as Gateways&#39;, &#39;GPS&#39;] }
+            ]
+        },
+        {
+            unit: &#39;Part B: India – People and Economy&#39;,
+            topics: [
+                { title: &#39;Unit 6: People&#39;, sub: [&#39;Population Distribution &amp; Growth&#39;, &#39;Composition: Linguistic, Religious, Sex&#39;, &#39;Rural-Urban Variations&#39;] },
+                { title: &#39;Unit 7: Human Settlements&#39;, sub: [&#39;Rural Types &amp; Distribution&#39;, &#39;Urban Types &amp; Functional Classification&#39;] },
+                { title: &#39;Unit 8: Resources &amp; Development&#39;, sub: [&#39;Land Use &amp; Agriculture&#39;, &#39;Major Crops Distribution&#39;, &#39;Water Resources &amp; Management&#39;, &#39;Mineral &amp; Energy Resources&#39;, &#39;Planning &amp; Sustainable Development&#39;] },
+                { title: &#39;Unit 9: Transport, Communication &amp; Trade&#39;, sub: [&#39;National Networks (Road, Rail, Water, Air, Pipe)&#39;, &#39;Changing Patterns of Foreign Trade&#39;, &#39;Sea Ports &amp; Airports&#39;] },
+                { title: &#39;Unit 10: Geographical Perspective&#39;, sub: [&#39;Urbanization &amp; Slums&#39;, &#39;Land Degradation&#39;, &#39;Pollution&#39;, &#39;Migration&#39;, &#39;Waste Disposal&#39;] }
+            ]
+        }
+    ]
+};
+
+// Initialize Countdown
 function updateTimer() {
-  const now = new Date();
-  const total = firstExam - startDate;
-  const passed = now - startDate;
-  const left = firstExam - now;
+    const now = new Date().getTime();
+    const diff = examDate - now;
 
-  document.getElementById("timeLeft").innerText =
-    left > 0 ? format(left) + " remaining" : "📘 Exam Day";
-
-  document.getElementById("progress").style.width =
-    Math.min((passed / total) * 100, 100) + "%";
-}
-
-updateTimer();
-setInterval(updateTimer, 1000);
-
-/* ACCORDION PHYSICS */
-function toggle(el) {
-  const panel = el.nextElementSibling;
-  panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
-}
-
-/* SYLLABUS DATA */
-const syllabus = {
-  geo: {
-    "Part A: Fundamentals of Human Geography": {
-      "Unit 1: Human Geography – Nature and Scope": [
-        "Meaning of Human Geography",
-        "Nature and Scope"
-      ],
-      "Unit 2: People": [
-        "Population: Distribution, Density & Growth",
-        "Population Change & Demographic Transition",
-        "Human Development",
-        "International Comparisons"
-      ],
-      "Unit 3: Human Activities": [
-        "Primary Activities – Mining, Agriculture, Pastoral",
-        "Secondary Activities – Manufacturing",
-        "Tertiary Activities – Trade, Transport, Tourism",
-        "Quaternary Activities – Concept"
-      ],
-      "Unit 4: Transport, Communication & Trade": [
-        "Land, Water & Air Transport",
-        "Pipelines",
-        "Satellite Communication & Cyber Space",
-        "International Trade & WTO",
-        "Ports, Ocean Routes & Railways",
-        "GPS"
-      ]
-    },
-
-    "Part B: India – People & Economy": {
-      "Unit 6: People": [
-        "Population Distribution, Density & Growth",
-        "Population Composition",
-        "Rural–Urban Variations"
-      ],
-      "Unit 7: Human Settlements": [
-        "Rural Settlements",
-        "Urban Settlements"
-      ],
-      "Unit 8: Resources & Development": [
-        "Land & Agricultural Resources",
-        "Major Crops",
-        "Water Resources & Conservation",
-        "Mineral & Energy Resources",
-        "Planning in India",
-        "Sustainable Development"
-      ],
-      "Unit 9: Transport, Communication & Trade": [
-        "Transport Networks",
-        "GIC Networks",
-        "India’s Foreign Trade",
-        "Ports & Airports"
-      ],
-      "Unit 10: Geographical Issues": [
-        "Urbanisation & Slums",
-        "Land Degradation",
-        "Environmental Pollution",
-        "Migration & Urban Waste"
-      ]
+    if (diff &lt;= 0) {
+        document.getElementById(&#39;countdown&#39;).innerHTML = &quot;&lt;h2 style=&#39;color: var(--accent-color)&#39;&gt;Examination Day&lt;/h2&gt;&quot;;
+        document.getElementById(&#39;progress-bar&#39;).style.width = &quot;100%&quot;;
+        return;
     }
-  },
 
-  phe: {
-  "Unit 1: Management of Sporting Events": [
-    "Functions of Sports Events Management",
-    "Planning, Organising, Staffing, Directing & Controlling",
-    "Various Committees & Responsibilities",
-    "Fixtures – Knockout, League & Combination",
-    "Intramural & Extramural Tournaments",
-    "Community Sports Programmes"
-  ],
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-  "Unit 2: Children & Women in Sports": [
-    "WHO Exercise Guidelines",
-    "Postural Deformities & Corrective Measures",
-    "Women’s Participation in Sports",
-    "Female Athlete Triad",
-    "Menarche & Menstrual Dysfunction"
-  ],
+    document.getElementById(&#39;days&#39;).innerText = d.toString().padStart(2, &#39;0&#39;);
+    document.getElementById(&#39;hours&#39;).innerText = h.toString().padStart(2, &#39;0&#39;);
+    document.getElementById(&#39;minutes&#39;).innerText = m.toString().padStart(2, &#39;0&#39;);
+    document.getElementById(&#39;seconds&#39;).innerText = s.toString().padStart(2, &#39;0&#39;);
 
-  "Unit 3: Yoga as Preventive Measure": [
-    "Obesity – Asanas & Benefits",
-    "Diabetes – Asanas & Benefits",
-    "Asthma – Asanas & Benefits",
-    "Hypertension – Asanas & Benefits",
-    "Back Pain & Arthritis – Asanas"
-  ],
+    // Progress calculation
+    const totalDuration = examDate - startDate;
+    const elapsed = now - startDate;
+    const percent = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+    document.getElementById(&#39;progress-bar&#39;).style.width = percent + &quot;%&quot;;
+}
 
-  "Unit 4: Physical Education & Sports for CWSN": [
-    "Special Olympics",
-    "Paralympics",
-    "Deaflympics",
-    "Classification & Divisioning",
-    "Inclusion in Sports"
-  ],
+setInterval(updateTimer, 1000);
+updateTimer();
 
-  "Unit 5: Sports & Nutrition": [
-    "Balanced Diet",
-    "Macro & Micro Nutrients",
-    "Nutritive & Non-Nutritive Components",
-    "Food Myths & Food Intolerance",
-    "Pre, During & Post Competition Diet"
-  ],
+// Syllabus Management
+function loadSyllabus(subjectId) {
+    const subject = subjects.find(s =&gt; s.id === subjectId);
+    document.getElementById(&#39;current-subject-title&#39;).innerText = subject.name;
+    document.getElementById(&#39;current-subject-code&#39;).innerText = `Subject Code: ${subject.code} • ${subject.date}`;
+    
+    const content = document.getElementById(&#39;syllabus-content&#39;);
+    content.innerHTML = &#39;&#39;;
 
-  "Unit 6: Test & Measurement in Sports": [
-    "SAI Khelo India Fitness Test",
-    "BMI",
-    "50m Speed Test",
-    "600m Run/Walk",
-    "Sit & Reach Test",
-    "Strength Tests"
-  ]
-},
-/* LOAD SUBJECT */
-function loadSubject(key) {
-  document.getElementById("subjectTitle").innerText = "📘 " + key.toUpperCase();
-  const box = document.getElementById("syllabus");
-  box.innerHTML = "";
+    const data = syllabusData[subjectId] || [{unit: &#39;Coming Soon&#39;, topics: [{title: &#39;Syllabus content being updated.&#39;}]}];
 
-  Object.entries(syllabus[key]).forEach(([section, units]) => {
-    const sec = document.createElement("div");
-    sec.innerHTML = `<h3>${section}</h3>`;
+    data.forEach((u, uIdx) =&gt; {
+        const unitDiv = document.createElement(&#39;div&#39;);
+        unitDiv.className = &#39;unit-container&#39;;
+        
+        const btn = document.createElement(&#39;button&#39;);
+        btn.className = &#39;unit-trigger&#39;;
+        btn.innerHTML = `&lt;span&gt;${u.unit}&lt;/span&gt; &lt;span&gt;↓&lt;/span&gt;`;
+        
+        const contentDiv = document.createElement(&#39;div&#39;);
+        contentDiv.className = &#39;unit-content&#39;;
+        
+        const list = document.createElement(&#39;div&#39;);
+        list.className = &#39;topic-list&#39;;
 
-    Object.entries(units).forEach(([unit, topics]) => {
-      const u = document.createElement("div");
-      u.className = "unit";
-      u.innerHTML = `
-        <div class="unit-title" onclick="toggle(this)">▶ ${unit}</div>
-        <div class="topics"></div>
-      `;
+        u.topics.forEach((t, tIdx) =&gt; {
+            const topicId = `${subjectId}-${uIdx}-${tIdx}`;
+            list.appendChild(createItemRow(t.title, topicId));
+            
+            if (t.sub) {
+                const subList = document.createElement(&#39;div&#39;);
+                subList.className = &#39;sub-topic-list&#39;;
+                t.sub.forEach((st, stIdx) =&gt; {
+                    const subId = `${topicId}-s${stIdx}`;
+                    subList.appendChild(createItemRow(st, subId));
+                });
+                list.appendChild(subList);
+            }
+        });
 
-      const t = u.querySelector(".topics");
-      topics.forEach((topic, i) => {
-        const id = key + unit + i;
-        const checked = localStorage.getItem(id) === "1";
-        t.innerHTML += `
-          <div class="topic">
-            <input type="checkbox" id="${id}" ${checked ? "checked" : ""}
-              onchange="localStorage.setItem('${id}', this.checked ? 1 : 0)">
-            <label for="${id}">${topic}</label>
-          </div>
-        `;
-      });
+        contentDiv.appendChild(list);
+        unitDiv.appendChild(btn);
+        unitDiv.appendChild(contentDiv);
+        content.appendChild(unitDiv);
 
-      sec.appendChild(u);
+        btn.onclick = () =&gt; {
+            const isOpen = contentDiv.classList.contains(&#39;open&#39;);
+            document.querySelectorAll(&#39;.unit-content&#39;).forEach(c =&gt; c.classList.remove(&#39;open&#39;));
+            if (!isOpen) contentDiv.classList.add(&#39;open&#39;);
+        };
     });
 
-    box.appendChild(sec);
-  });
+    updateProgress(subjectId);
 }
+
+function createItemRow(text, id) {
+    const label = document.createElement(&#39;label&#39;);
+    label.className = &#39;item-row&#39;;
+    const checked = localStorage.getItem(id) === &#39;true&#39; ? &#39;checked&#39; : &#39;&#39;;
+    
+    label.innerHTML = `
+        &lt;div class=&quot;checkbox-container&quot;&gt;
+            &lt;input type=&quot;checkbox&quot; id=&quot;${id}&quot; ${checked} onchange=&quot;toggleItem(&#39;${id}&#39;)&quot;&gt;
+            &lt;span class=&quot;checkmark&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;span class=&quot;item-text&quot;&gt;${text}&lt;/span&gt;
+    `;
+    return label;
+}
+
+window.toggleItem = (id) =&gt; {
+    const cb = document.getElementById(id);
+    localStorage.setItem(id, cb.checked);
+    const subjectId = id.split(&#39;-&#39;)[0];
+    updateProgress(subjectId);
+};
+
+function updateProgress(subjectId) {
+    const cbs = document.querySelectorAll(`#syllabus-content input[type=&quot;checkbox&quot;]`);
+    if (cbs.length === 0) return;
+    const checked = Array.from(cbs).filter(c =&gt; c.checked).length;
+    const percent = Math.round((checked / cbs.length) * 100);
+    document.getElementById(&#39;subject-progress&#39;).innerText = `${percent}% Complete`;
+}
+
+// Render Date Sheet
+const dateSheet = document.getElementById(&#39;date-sheet&#39;);
+subjects.forEach(s =&gt; {
+    const card = document.createElement(&#39;div&#39;);
+    card.className = &#39;subject-card&#39;;
+    card.id = `card-${s.id}`;
+    card.innerHTML = `
+        &lt;div class=&quot;subject-info&quot;&gt;
+            &lt;h3&gt;${s.name}&lt;/h3&gt;
+            &lt;p&gt;${s.date}&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;span style=&quot;font-size: 0.7rem; opacity: 0.5&quot;&gt;→&lt;/span&gt;
+    `;
+    card.onclick = () =&gt; {
+        document.querySelectorAll(&#39;.subject-card&#39;).forEach(c =&gt; c.classList.remove(&#39;active&#39;));
+        card.classList.add(&#39;active&#39;);
+        loadSyllabus(s.id);
+    };
+    dateSheet.appendChild(card);
+});
+
+// Load default
+document.getElementById(&#39;card-phe&#39;).click();
+
+```
+
 </script>
 
 </body>

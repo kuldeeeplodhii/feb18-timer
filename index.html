@@ -76,8 +76,8 @@
             /* Fade the fog out at the top */
             mask-image: linear-gradient(to top, black 20%, transparent 100%);
             -webkit-mask-image: linear-gradient(to top, black 20%, transparent 100%);
-            /* Base blue tint for the atmosphere */
-            background: linear-gradient(to top, rgba(41, 151, 255, 0.2) 0%, transparent 100%);
+            /* Base blue tint for the atmosphere - Icy Light Blue */
+            background: linear-gradient(to top, rgba(100, 200, 255, 0.4) 0%, transparent 100%);
         }
 
         /* Animated Fog Layers */
@@ -91,16 +91,19 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
             background-size: 50% 100%; /* Stretch to look wispy */
             filter: blur(15px) contrast(120%); /* Soften noise into fog */
-            opacity: 0.6;
-            animation: fog-drift 60s linear infinite;
+            opacity: 0.7;
+            /* Fast drift for mountain wind effect */
+            animation: fog-drift 25s linear infinite;
             will-change: transform;
+            /* Subtle tint on the noise layer itself */
+            background-color: rgba(135, 206, 250, 0.1); 
         }
 
         /* Second layer moves faster and reverse for turbulence effect */
         .fog-layer.secondary {
-            animation-duration: 40s;
+            animation-duration: 15s;
             animation-direction: reverse;
-            opacity: 0.4;
+            opacity: 0.5;
             filter: blur(20px) contrast(110%);
         }
 

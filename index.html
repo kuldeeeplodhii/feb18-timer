@@ -6,14 +6,14 @@
     <title>Class 12 Exam Dashboard</title>
     <style>
         :root {
-            --bg-body: #0f0f11;
-            --bg-card: #18181b;
-            --bg-card-hover: #202025;
-            --text-main: #e4e4e7;
-            --text-muted: #a1a1aa;
+            --bg-body: #000000;
+            --bg-card: #09090b;
+            --bg-card-hover: #121215;
+            --text-main: #f4f4f5;
+            --text-muted: #71717a;
             --accent: #3b82f6; /* Modern Blue */
-            --accent-glow: rgba(59, 130, 246, 0.15);
-            --border: #27272a;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --border: #1f1f22;
             --success: #10b981;
             --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
@@ -34,6 +34,26 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Star Background */
+        .star {
+            position: fixed;
+            background: white;
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: var(--opacity); transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
         }
 
         /* Utils */
@@ -42,6 +62,8 @@
             margin: 0 auto;
             padding: 2rem;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .hidden { display: none !important; }
@@ -65,7 +87,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.05); /* Subtle blue glow */
         }
 
         .timer-display {
@@ -80,19 +102,21 @@
             font-weight: 700;
             display: block;
             line-height: 1;
+            color: var(--text-main);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
         }
 
         .time-unit .label {
             font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
             margin-top: 0.5rem;
             display: block;
         }
 
         .progress-container {
-            background: #27272a;
+            background: #1f1f22;
             height: 6px;
             border-radius: 3px;
             margin-top: 1.5rem;
@@ -107,13 +131,14 @@
             border-radius: 3px;
             transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            box-shadow: 0 0 10px var(--accent);
         }
 
         .progress-bar::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
             transform: translateX(-100%);
             animation: shimmer 2s infinite;
         }
@@ -143,8 +168,11 @@
         .datesheet-header {
             padding: 1.25rem;
             border-bottom: 1px solid var(--border);
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .subject-list {
@@ -155,27 +183,37 @@
             padding: 1rem 1.25rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            border-left: 3px solid transparent;
+            border-left: 2px solid transparent;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: var(--text-muted);
         }
 
         .subject-item:hover {
             background: var(--bg-card-hover);
+            color: var(--text-main);
         }
 
         .subject-item.active {
-            background: var(--accent-glow);
+            background: linear-gradient(90deg, var(--accent-glow), transparent);
             border-left-color: var(--accent);
+            color: var(--accent);
         }
 
         .subject-date {
             font-size: 0.75rem;
             color: var(--text-muted);
-            background: rgba(255,255,255,0.05);
-            padding: 2px 6px;
+            background: #18181b;
+            border: 1px solid #27272a;
+            padding: 2px 8px;
             border-radius: 4px;
+        }
+
+        .subject-item.active .subject-date {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
         }
 
         /* Syllabus Panel */
@@ -191,13 +229,14 @@
         }
 
         .progress-badge {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
             padding: 0.5rem 1rem;
             border-radius: 99px;
             font-size: 0.875rem;
             font-weight: 500;
             color: var(--success);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.05);
         }
 
         /* Accordion System */
@@ -206,13 +245,14 @@
         }
         
         .part-title {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            color: var(--accent);
             margin-bottom: 1rem;
             border-bottom: 1px solid var(--border);
             padding-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
         }
 
         .unit-card {
@@ -226,7 +266,6 @@
 
         .unit-card:hover {
             border-color: #3f3f46;
-            transform: translateY(-1px);
         }
 
         .unit-header {
@@ -240,6 +279,7 @@
 
         .unit-title {
             font-weight: 500;
+            color: var(--text-main);
         }
 
         .toggle-icon {
@@ -262,12 +302,19 @@
 
         .unit-card.expanded .toggle-icon { transform: rotate(90deg); }
         .unit-card.expanded .toggle-icon::after { height: 0; }
+        .unit-card.expanded .toggle-icon::before { background-color: var(--accent); }
+        .unit-card.expanded .unit-title { color: var(--accent); }
 
         .unit-content {
             height: 0;
             overflow: hidden;
             transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(0,0,0,0.2);
+            background: #050507; /* Slightly darker inside */
+            border-top: 1px solid transparent;
+        }
+        
+        .unit-card.expanded .unit-content {
+            border-top-color: var(--border);
         }
 
         .topic-list {
@@ -297,7 +344,7 @@
             appearance: none;
             width: 18px;
             height: 18px;
-            border: 2px solid var(--border);
+            border: 2px solid #3f3f46;
             border-radius: 4px;
             background: transparent;
             cursor: pointer;
@@ -310,6 +357,7 @@
         .custom-checkbox:checked {
             background: var(--accent);
             border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
         }
 
         .custom-checkbox:checked::after {
@@ -328,12 +376,13 @@
             cursor: pointer;
             transition: color 0.2s;
             font-size: 0.95rem;
+            color: var(--text-main);
         }
 
         .custom-checkbox:checked + .topic-label {
             color: var(--text-muted);
             text-decoration: line-through;
-            opacity: 0.7;
+            opacity: 0.6;
         }
 
         /* Mobile Responsive */
@@ -993,12 +1042,43 @@
         tick();
         setInterval(tick, 1000);
     }
+    
+    // --- Stars Background ---
+    function createStars() {
+        const count = 50;
+        const body = document.body;
+        for (let i = 0; i < count; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            
+            // Random size: small (2px) or tiny (1px)
+            const size = Math.random() > 0.5 ? 2 : 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            // Random position
+            star.style.top = `${Math.random() * 100}vh`;
+            star.style.left = `${Math.random() * 100}vw`;
+            
+            // Random opacity for peak brightness
+            star.style.setProperty('--opacity', Math.random() * 0.7 + 0.3);
+            
+            // Random animation duration (3s to 8s)
+            star.style.setProperty('--duration', `${Math.random() * 5 + 3}s`);
+            
+            // Random delay
+            star.style.setProperty('--delay', `${Math.random() * 5}s`);
+            
+            body.appendChild(star);
+        }
+    }
 
     // --- Init ---
     document.addEventListener('DOMContentLoaded', () => {
         initCountdown();
         renderDateSheet();
         renderSyllabus();
+        createStars();
     });
 
 </script>

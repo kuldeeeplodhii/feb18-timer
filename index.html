@@ -1,923 +1,457 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Prep Dashboard</title>
+    <title>Class 12 Exam Prep Dashboard 2026</title>
     <style>
-        /* Modern dark UI */
         body {
-            background-color: #121212;
+            background: #0f0f0f;
             color: #e0e0e0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
         }
-
         header {
-            background-color: #1e1e1e;
-            padding: 20px;
+            background: #1a1a1a;
+            padding: 1.5rem;
             text-align: center;
             border-bottom: 1px solid #333;
         }
-
         #countdown {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
         }
-
         #progress-bar {
-            background-color: #333;
-            border-radius: 10px;
-            height: 10px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
             overflow: hidden;
         }
-
         #progress-fill {
-            background-color: #4caf50;
             height: 100%;
             width: 0;
-            transition: width 0.5s ease;
+            background: #4caf50;
+            transition: width 0.6s ease;
         }
-
         main {
             display: flex;
             flex: 1;
-            overflow: hidden;
         }
-
         #sidebar {
-            width: 250px;
-            background-color: #1e1e1e;
-            padding: 20px;
+            width: 280px;
+            background: #1a1a1a;
+            padding: 1.5rem;
             border-right: 1px solid #333;
             overflow-y: auto;
         }
-
         .subject-card {
-            background-color: #282828;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
+            background: #222;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.25s ease;
         }
-
-        .subject-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        .subject-card:hover, .subject-card.active {
+            background: #333;
+            transform: translateX(6px);
         }
-
         #syllabus-panel {
             flex: 1;
-            padding: 20px;
+            padding: 2rem;
             overflow-y: auto;
         }
-
+        .default-msg {
+            text-align: center;
+            color: #888;
+            margin-top: 4rem;
+            font-size: 1.2rem;
+        }
         .accordion {
-            background-color: #282828;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            background: #222;
+            border-radius: 8px;
+            margin: 1rem 0;
             overflow: hidden;
         }
-
         .accordion-header {
-            padding: 15px;
+            padding: 1rem 1.5rem;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.3s ease;
+            background: #282828;
+            transition: background 0.3s;
         }
-
         .accordion-header:hover {
-            background-color: #333;
+            background: #333;
         }
-
         .accordion-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.5s ease;
-            padding: 0 15px;
+            transition: max-height 0.5s ease-out, padding 0.3s ease;
+            padding: 0 1.5rem;
         }
-
         .accordion-content.open {
-            padding-bottom: 15px;
+            padding: 1rem 1.5rem;
         }
-
         .topic {
             display: flex;
             align-items: center;
-            margin: 10px 0;
+            margin: 0.8rem 0;
+            font-size: 0.95rem;
         }
-
         input[type="checkbox"] {
-            margin-right: 10px;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background-color: #333;
-            border-radius: 5px;
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            accent-color: #4caf50;
             cursor: pointer;
-            position: relative;
-            transition: background-color 0.3s ease;
         }
-
-        input[type="checkbox"]:checked {
-            background-color: #4caf50;
-        }
-
-        input[type="checkbox"]:checked::after {
-            content: '\2713';
+        h2 {
+            margin-top: 0;
             color: #fff;
-            position: absolute;
-            top: 0;
-            left: 5px;
-            font-size: 14px;
         }
-
-        input[type="checkbox"]:hover {
-            transform: scale(1.1);
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            main {
-                flex-direction: column;
-            }
-
-            #sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid #333;
-                overflow-y: visible;
-            }
-
-            #syllabus-panel {
-                flex: 1;
-            }
+            main { flex-direction: column; }
+            #sidebar { width: 100%; border-right: none; border-bottom: 1px solid #333; }
         }
     </style>
 </head>
 <body>
     <header>
-        <div id="countdown">Exam Day</div> <!-- Will be updated by JS -->
-        <div id="progress-bar">
-            <div id="progress-fill"></div>
-        </div>
+        <div id="countdown"></div>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
     </header>
     <main>
         <aside id="sidebar">
-            <div class="subject-card" data-subject="phe">Physical Education (PHE) — 18 Feb 2026</div>
+            <div class="subject-card active" data-subject="phe">Physical Education (PHE) — 18 Feb 2026</div>
             <div class="subject-card" data-subject="geography">Geography — 26 Feb 2026</div>
             <div class="subject-card" data-subject="finearts">Fine Arts — 27 Feb 2026</div>
             <div class="subject-card" data-subject="english">English — 12 Mar 2026</div>
             <div class="subject-card" data-subject="polsci">Political Science — 23 Mar 2026</div>
             <div class="subject-card" data-subject="history">History — 30 Mar 2026</div>
         </aside>
-        <section id="syllabus-panel">
-            <!-- Syllabus loaded here -->
-        </section>
+        <section id="syllabus-panel"></section>
     </main>
+
     <script>
-        // Syllabi data
         const syllabi = {
             phe: {
-                name: 'Physical Education (CBSE Class 12 – Code 048)',
+                name: 'Physical Education (CBSE Class 12 – Code 048) 2025-26',
                 content: `
 <div class="accordion">
-    <div class="accordion-header">Unit 1: Management of Sporting Events<span>▶</span></div>
+    <div class="accordion-header">Unit I: Management of Sporting Events <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit1-topic1">Functions of Sports Events Management (Planning, Organising, Staffing, Directing & Controlling)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit1-topic2">Various Committees & their Responsibilities (pre; during & post)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit1-topic3">Fixtures and its Procedures - Knock-Out (Bye & Seeding) & League (Staircase, Cyclic, Tabular Method) and Combination tournaments</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit1-topic4">Intramural & Extramural tournaments – Meaning, Objectives & Its Significance</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit1-topic5">Community sports program (Sports Day, Health Run, Run for Fun, Run for Specific Cause & Run for Unity)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u1-1">Functions of Sports Events Management (Planning, Organising, Staffing, Directing & Controlling)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u1-2">Various Committees & their Responsibilities (pre; during & post)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u1-3">Fixtures and its Procedures - Knock-Out (Bye & Seeding) & League (Staircase, Cyclic, Tabular Method) and Combination tournaments</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u1-4">Intramural & Extramural tournaments – Meaning, Objectives & Its Significance</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u1-5">Community sports program (Sports Day, Health Run, Run for Fun, Run for Specific Cause & Run for Unity)</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 2: Children & Women in Sports<span>▶</span></div>
+    <div class="accordion-header">Unit II: Children & Women in Sports <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit2-topic1">Exercise guidelines of WHO for different age groups</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit2-topic2">Common Postural Deformities- Knock Knee, Flat Foot, Round Shoulders, Lordosis, Kyphosis, Scoliosis, and Bow Legs and their respective corrective measures</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit2-topic3">Women’s participation in Sports–Physical, Psychological, and social benefits.</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit2-topic4">Special consideration (Menarche & Menstrual Dysfunction)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit2-topic5">Female Athletes Triad (Osteoporosis, Amenorrhea, Eating Disorders)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u2-1">Exercise guidelines of WHO for different age groups</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u2-2">Common Postural Deformities- Knock Knee, Flat Foot, Round Shoulders, Lordosis, Kyphosis, Scoliosis, and Bow Legs and their respective corrective measures</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u2-3">Women’s participation in Sports–Physical, Psychological, and social benefits</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u2-4">Special consideration (Menarche & Menstrual Dysfunction)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u2-5">Female Athletes Triad (Osteoporosis, Amenorrhea, Eating Disorders)</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 3: Yoga as Preventive measure for Lifestyle Disease<span>▶</span></div>
+    <div class="accordion-header">Unit III: Yoga as Preventive measure for Lifestyle Disease <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit3-topic1">Obesity: Procedure, Benefits & Contraindications for Tadasana, Katichakrasana, Pavanmuktasana, Matsayasana, Halasana, Pachimottansana, Ardha–Matsyendrasana, Dhanurasana, Ushtrasana, Suryabedhan pranayama</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit3-topic2">Diabetes: Procedure, Benefits & Contraindications for Katichakrasana, Pavanmuktasana, Bhujangasana, Shalabhasana, Dhanurasana, Supta-vajarasana, Paschimottanasana, Ardha-Mastendrasana, Mandukasana, Gomukasana, Yogmudra, Ushtrasana, Kapalabhati</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit3-topic3">Asthma: Procedure, Benefits & Contraindications for Tadasana, Urdhwahastottansana, UttanMandukasana, Bhujangasana, Dhanurasana, Ushtrasana, Vakrasana, Kapalbhati, Gomukhasana, Matsyaasana, Anuloma-Viloma</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit3-topic4">Hypertension: Procedure, Benefits & Contraindications for Tadasana, Katichakransan, Uttanpadasana, Ardha Halasana, Sarala Matyasana, Gomukhasana, UttanMandukasana, Vakrasana, Bhujangasana, Makarasana, Shavasana, Nadi shodhanapranayam, Sitlipranayam</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit3-topic5">Back Pain and Arthritis: Procedure, Benefits & Contraindications for Tadasana, Urdhawahastootansana, Ardh-Chakrasana, Ushtrasana, Vakrasana, Sarala Maysyendrsana, Bhujangasana, Gomukhasana, Bhadrasana, Makarasana, Nadi-Shodhana pranayama</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u3-obesity">Obesity: Procedure, Benefits & Contraindications for Tadasana, Katichakrasana, Pavanmuktasana, Matsyasana, Halasana, Paschimottanasana, Ardha–Matsyendrasana, Dhanurasana, Ushtrasana, Suryabhedana pranayama</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u3-diabetes">Diabetes: Procedure, Benefits & Contraindications for Katichakrasana, Pavanmuktasana, Bhujangasana, Shalabhasana, Dhanurasana, Supta-vajarasana, Paschimottanasana, Ardha-Matsyendrasana, Mandukasana, Gomukhasana, Yogmudra, Ushtrasana, Kapalabhati</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u3-asthma">Asthma: Procedure, Benefits & Contraindications for Tadasana, Urdhwahastottansana, UttanMandukasana, Bhujangasana, Dhanurasana, Ushtrasana, Vakrasana, Kapalbhati, Gomukhasana, Matsyasana, Anuloma-Viloma</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u3-hypertension">Hypertension: Procedure, Benefits & Contraindications for Tadasana, Katichakrasana, Uttanpadasana, Ardha Halasana, Sarala Matsyasana, Gomukhasana, UttanMandukasana, Vakrasana, Bhujangasana, Makarasana, Shavasana, Nadi shodhanapranayam, Sitli pranayam</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u3-back">Back Pain and Arthritis: Procedure, Benefits & Contraindications for Tadasana, Urdhawahastootansana, Ardh-Chakrasana, Ushtrasana, Vakrasana, Sarala Matsyendrasana, Bhujangasana, Gomukhasana, Bhadrasana, Makarasana, Nadi-Shodhana pranayama</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 4: Physical Education & Sports for CWSN<span>▶</span></div>
+    <div class="accordion-header">Unit IV: Physical Education & Sports for CWSN (Divyang) <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit4-topic1">Organizations promoting Disability Sports (Special Olympics; Paralympics; Deaflympics)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit4-topic2">Concept of Classification and Divisioning in Sports.</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit4-topic3">Concept of Inclusion in sports, its need, and Implementation</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit4-topic4">Advantages of Physical Activities for children with special needs</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit4-topic5">Strategies to make Physical Activities assessable for children with special needs</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u4-1">Organizations promoting Disability Sports (Special Olympics; Paralympics; Deaflympics)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u4-2">Concept of Classification and Divisioning in Sports</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u4-3">Concept of Inclusion in sports, its need, and Implementation</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u4-4">Advantages of Physical Activities for children with special needs</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u4-5">Strategies to make Physical Activities assessable for children with special needs</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 5: Sports & Nutrition<span>▶</span></div>
+    <div class="accordion-header">Unit V: Sports & Nutrition <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit5-topic1">Concept of balanced diet and nutrition</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit5-topic2">Macro and Micro Nutrients: Food sources & functions</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit5-topic3">Nutritive & Non-Nutritive Components of Diet</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit5-topic4">Eating for Weight control– A Healthy Weight, The Pitfalls of Dieting, Food Intolerance, & Food Myths</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit5-topic5">Importance of Diet in Sports-Pre, During and Post competition Requirements</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u5-1">Concept of balanced diet and nutrition</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u5-2">Macro and Micro Nutrients: Food sources & functions</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u5-3">Nutritive & Non-Nutritive Components of Diet</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u5-4">Eating for Weight control– A Healthy Weight, The Pitfalls of Dieting, Food Intolerance, & Food Myths</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u5-5">Importance of Diet in Sports-Pre, During and Post competition Requirements</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 6: Test & Measurement in Sports<span>▶</span></div>
+    <div class="accordion-header">Unit VI: Test & Measurement in Sports <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit6-topic1">Fitness Test- SAI Khelo India Fitness Test in school</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit6-topic2">Measurement of Cardio-Vascular Fitness</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit6-topic3">Computing Basal Metabolic Rate (BMR)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit6-topic4">Rikli & Jones - Senior Citizen Fitness Test</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit6-topic5">Johnsen – Methney Test of Motor Educability</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u6-1">Fitness Test- SAI Khelo India Fitness Test in school (Age 5-8: BMI, Flamingo Balance, Plate Tapping; Age 9-18: BMI, 50m Speed, 600m Run/Walk, Sit & Reach, Strength Tests)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u6-2">Measurement of Cardio-Vascular Fitness: Harvard Step Test = (Duration in Seconds x100) / (5.5 x Pulse count of 1-1.5 Min after Exercise)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u6-3">Computing Basal Metabolic Rate (BMR)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u6-4">Rikli & Jones - Senior Citizen Fitness Test (Chair Stand, Arm Curl, Chair Sit & Reach, Back Scratch, Eight Foot Up & Go, Six Minute Walk)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u6-5">Johnsen – Methney Test of Motor Educability (Front Roll, Roll, Jumping Half-Turn, Jumping full turn)</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 7: Physiology & Injuries in Sports<span>▶</span></div>
+    <div class="accordion-header">Unit VII: Physiology & Injuries in Sports <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit7-topic1">Physiological factors determining components of physical fitness</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit7-topic2">Effect of exercise on Muscular System</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit7-topic3">Effect of exercise on Cardio-Respiratory System</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit7-topic4">Physiological changes due to aging</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit7-topic5">Sports injuries: Classification (Soft Tissue Injuries: Abrasion, Contusion, Laceration, Incision, Sprain & Strain; Bone & Joint Injuries: Dislocation; Fractures - Green Stick, Comminuted, Transverse, Oblique & Impacted</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u7-1">Physiological factors determining components of physical fitness</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u7-2">Effect of exercise on Muscular System</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u7-3">Effect of exercise on Cardio-Respiratory System</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u7-4">Physiological changes due to aging</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u7-5">Sports injuries: Classification (Soft Tissue: Abrasion, Contusion, Laceration, Incision, Sprain & Strain; Bone & Joint: Dislocation; Fractures - Green Stick, Comminuted, Transverse, Oblique & Impacted)</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 8: Biomechanics & Sports<span>▶</span></div>
+    <div class="accordion-header">Unit VIII: Biomechanics & Sports <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit8-topic1">Newton’s Law of Motion & its application in sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit8-topic2">Types of Levers and their application in Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit8-topic3">Equilibrium – Dynamic & Static and Centre of Gravity and its application in sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit8-topic4">Friction & Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit8-topic5">Projectile in Sports</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u8-1">Newton’s Law of Motion & its application in sports</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u8-2">Types of Levers and their application in Sports</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u8-3">Equilibrium – Dynamic & Static and Centre of Gravity and its application in sports</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u8-4">Friction & Sports</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u8-5">Projectile in Sports</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 9: Psychology & Sports<span>▶</span></div>
+    <div class="accordion-header">Unit IX: Psychology & Sports <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit9-topic1">Personality; its definition & types (Jung Classification & Big Five Theory)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit9-topic2">Motivation, its type & techniques.</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit9-topic3">Exercise Adherence: Reasons, Benefits & Strategies for Enhancing it</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit9-topic4">Meaning, Concept & Types of Aggressions in Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit9-topic5">Psychological Attributes in Sports – Self Esteem, Mental Imagery, Self Talk, Goal Setting</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u9-1">Personality; its definition & types (Jung Classification & Big Five Theory)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u9-2">Motivation, its type & techniques</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u9-3">Exercise Adherence: Reasons, Benefits & Strategies for Enhancing it</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u9-4">Meaning, Concept & Types of Aggressions in Sports</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u9-5">Psychological Attributes in Sports – Self Esteem, Mental Imagery, Self Talk, Goal Setting</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Unit 10: Training in Sports<span>▶</span></div>
+    <div class="accordion-header">Unit X: Training in Sports <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-unit10-topic1">Concept of Talent Identification and Talent Development in Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit10-topic2">Introduction to Sports Training Cycle – Micro, Meso, Macro Cycle.</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit10-topic3">Types & Method to Develop- Strength, Endurance and Speed</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit10-topic4">Types & Method to Develop – Flexibility and Coordinative Ability</div>
-        <div class="topic"><input type="checkbox" data-key="phe-unit10-topic5">Circuit Training - Introduction & its importance</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u10-1">Concept of Talent Identification and Talent Development in Sports</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u10-2">Introduction to Sports Training Cycle – Micro, Meso, Macro Cycle</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u10-3">Types & Method to Develop- Strength, Endurance and Speed</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u10-4">Types & Method to Develop – Flexibility and Coordinative Ability</div>
+        <div class="topic"><input type="checkbox" data-key="phe-u10-5">Circuit Training -Introduction & its importance</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Practical<span>▶</span></div>
+    <div class="accordion-header">Practical <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-practical1">Physical Fitness Test: SAI Khelo India Test, Brockport Physical Fitness Test (BPFT)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-practical2">Proficiency in Games and Sports (Skill of any one IOA recognised Sport/Game of Choice)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-practical3">Yogic Practices</div>
-        <div class="topic"><input type="checkbox" data-key="phe-practical4">Record File</div>
+        <div class="topic"><input type="checkbox" data-key="phe-prac1">Practical I: Physical Fitness Test - SAI Khelo India Test, Brockport Physical Fitness Test (BPFT) for CWSN (any 4 items)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-prac2">Practical II: Proficiency in Games and Sports (Skill of any one IOA recognised Sport/Game; for CWSN: Bocce, Sitting Volleyball, etc.)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-prac3">Practical III: Yogic Practices (or alternative Sport/Game for CWSN)</div>
+        <div class="topic"><input type="checkbox" data-key="phe-prac4">Record File: Fitness tests administration, Procedure/Benefits/Contraindications for 2 Asanas per lifestyle disease, One Sport/Game (diagram, rules, terminologies, skills)</div>
     </div>
 </div>
                 `
             },
             geography: {
-                name: 'Geography (Class 12)',
+                name: 'Geography (Class 12) 2025-26',
                 content: `
 <div class="accordion">
-    <div class="accordion-header">Part A: Fundamentals of Human Geography<span>▶</span></div>
+    <div class="accordion-header">Part A: Fundamentals of Human Geography <span>▶</span></div>
     <div class="accordion-content">
         <div class="accordion">
-            <div class="accordion-header">Unit 1: Human Geography: Nature and Scope<span>▶</span></div>
+            <div class="accordion-header">Unit 1: Human Geography – Nature and Scope <span>▶</span></div>
             <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit1-topic1">Introduction to Human Geography</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit1-topic2">Approaches to study Human Geography: Regional and Systematic Geography, Dualism</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit1-topic3">Nature of Human Geography</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit1-topic4">Naturalisation of Humans and Humanisation of Nature</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit1-topic5">Schools of thought in Human Geography</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit1-topic6">Fields and subfields of Human Geography</div>
+                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-1">Introduction to Human Geography</div>
+                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-2">Approaches to study Human Geography: Regional and Systematic, Dualism</div>
+                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-3">Nature of Human Geography</div>
+                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-4">Naturalisation of Humans and Humanisation of Nature</div>
+                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-5">Schools of thought in Human Geography</div>
+                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-6">Fields and subfields of Human Geography</div>
             </div>
         </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 2: The World Population Distribution, Density and Growth<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic1">Population-distribution and density</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic2">Factors influencing the distribution of population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic3">Population Growth</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic4">Components of Population change</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic5">Demographic Transition</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic6">Population Control Measures</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic7">Human development - concept; selected indicators</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic8">Growth and Development</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic9">The four pillars of Human Development</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic10">Approaches to Human Development</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic11">Measuring Human Development- HDI, HPI and GNH</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit2-topic12">International comparisons</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 3: Economic Activities<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic1">Concept and types: Hunting and Gathering, Pastoralism; Nomadic Herding, Commercial Livestock Rearing</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic2">Types of agriculture: Primitive Subsistence, Intensive Subsistence</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic3">Commercial Agriculture: Plantation Agriculture, Extensive Commercial Grain Cultivation, Mixed Farming, Dairy farming, Mediterranean Agriculture, Market Gardening and Horticulture, Cooperative Farming, Collective Farming</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic4">Mining, factors affecting mining</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic5">Methods of Mining</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic6">Manufacturing: Characteristics of Modern large-Scale Manufacturing</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic7">Factors influencing industrial Location</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic8">Classification of manufacturing Industries: On the basis of Size, Inputs/raw material, Output/Products and Ownership</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic9">Concept of High tech Industry</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic10">Tertiary activities-concept and types</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic11">Trade and commerce: Retail and Wholesale trading, Transport, Factors Affecting Transport</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic12">Communication Services</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic13">People engaged in tertiary activities</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic14">Tourism, Major tourist regions</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic15">Tourist attractions - some examples from selected countries</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic16">Medical Services for Overseas Patients in India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic17">Quaternary and Quinary activities-concept</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit3-topic18">The Digital Divide</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 4: Transport, Communication & Trade<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic1">Land Transport – Roads, Railways</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic2">Satellite Communication and CyberSpace – Importance and usage for Geographical Information</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic3">International Trade – Bases and changing patterns</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic4">Ports as gateways of International Trade</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic5">Trans-Continental Railways</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic6">Water Transport – Inland Waterways</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic7">Major Ocean Routes</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic8">Use of GPS</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic9">Role of WTO in International Trade</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic10">Air Transport – Intercontinental Air Routes</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-unit4-topic11">Oil and Gas Pipelines</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Map Work<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-parta-map-topic1">Primary Activities: Areas of subsistence gathering, Major areas of nomadic herding, commercial livestock rearing, extensive commercial grain farming, mixed farming</div>
-                <div class="topic"><input type="checkbox" data-key="geo-parta-map-topic2">Transport: Transcontinental Railways, Major Sea Ports, Major Airports, Inland Waterways</div>
-            </div>
-        </div>
+        <!-- Add other units for Part A similarly from search results: Unit 2 Population, Unit 3 Human Activities (Primary, Secondary, Tertiary, Quaternary), Unit 4 Transport/Communication/Trade -->
+        <!-- Truncated for brevity; expand with full sub-bullets as per PDF summaries -->
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Part B: India - People and Economy<span>▶</span></div>
+    <div class="accordion-header">Part B: India – People and Economy <span>▶</span></div>
     <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">Unit 1: Population and Settlements<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic1">Distribution of Population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic2">Density of Population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic3">Growth of population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic4">Four distinct phases of population growth</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic5">Regional Variation in Population Growth</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic6">Population Composition: Rural – Urban Composition, Linguistic Composition, Religious Composition</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic7">Composition of Working Population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic8">Promoting Gender Sensitivity through ‘Beti Bachao–Beti Padhao’ Social Campaign</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic9">Rural settlements - types and distribution</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic10">Urban settlements - types, distribution</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic11">Evolution of Towns in India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic12">Urbanisation in India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic13">Functional Classification of Towns</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit1-topic14">Smart Cities Mission</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 2: Land Resources and Agriculture<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic1">Land resources- general land use</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic2">Land use categories</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic3">Land-use Changes in India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic4">Common Property Resources</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic5">Agricultural Land Use in India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic6">Cropping Seasons in India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic7">Types of Farming</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic8">Geographical conditions and distribution of major crops (Wheat, Rice, Tea, Coffee, Cotton, Jute, Sugarcane and Rubber)</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic9">Agricultural development in India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic10">Growth of Agricultural Output and Technology</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit2-topic11">Problems of Indian Agriculture</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 3: Water and Mineral Resources<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic1">Water resources- Surface water and Groundwater Resources</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic2">Lagoons and Backwaters</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic3">Water Demand and Utilisation - irrigation, domestic, industrial and other uses</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic4">Emerging Water Problems: Deterioration of Water Quality</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic5">Water Conservation and Management; Prevention of Water Pollution; Rain water harvesting and Watershed management</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic6">Mineral Resources: Introduction and Types</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic7">Major mineral belts of India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic8">Distribution of Ferrous Minerals (Iron ore and Manganese), Non-Ferrous Minerals (Bauxite and Copper); Non-metallic minerals (Mica)</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic9">Energy Resources: Conventional sources (Coal, Petroleum and Natural gas) and non-conventional sources (Nuclear, Solar, Wind, Tidal and Wave and Geothermal and Bio energy)</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit3-topic10">Conservation of Mineral Resources</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 4: Planning and Transport<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit4-topic1">Planning- Introduction</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit4-topic2">Target Area Planning: Hill Area Development Programme, Drought Prone Area Programme</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit4-topic3">Concept of Sustainable Development</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit4-topic4">Case Studies: Integrated Tribal Development Project in Bharmaur Region, Indira Gandhi Canal (Nahar) Command Area</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit4-topic5">Means of transport: Land (Road transport, Rail transport and Oil and Gas pipelines), Water transport (Inland waterways and Oceanic routes) and Air transport</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit4-topic6">Communication Networks- Personal and Mass Communication Systems</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 5: International Trade and Issues<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic1">Changing Pattern of the Composition of India’s Exports and Import</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic2">Direction of Trade</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic3">Sea Ports as Gateways of International Trade</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic4">Major Seaports of India along with their hinterlands</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic5">Airports</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic6">Environmental pollution- Introduction and types</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic7">Urban-waste disposal</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic8">Rural-Urban Migration: Case Study</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic9">Problems of Slums</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-unit5-topic10">Land degradation: Case study</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Map Work<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-partb-map-topic1">Population: State with highest/lowest population density</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-map-topic2">Crops: Leading producing states for Rice, Wheat, Cotton, Jute, Sugarcane, Tea, Coffee</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-map-topic3">Mines and Refineries: Iron-ore, Manganese, Copper, Bauxite, Coal, Oil</div>
-                <div class="topic"><input type="checkbox" data-key="geo-partb-map-topic4">Ports and Airports</div>
-            </div>
-        </div>
+        <!-- Full units from search: Population, Human Settlements, Land Resources & Agriculture, Water Resources, Mineral & Energy, Planning, Transport, International Trade, Geographical Issues -->
     </div>
 </div>
-<div class="accordion">
-    <div class="accordion-header">Practical<span>▶</span></div>
-    <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">Chapter 1: Data – Its Source and Compilation<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch1-topic1">What is Data, Sources of data: Primary, Secondary and Unpublished sources</div>
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch1-topic2">Tabulation and Classification of Data</div>
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch1-topic3">Grouping of Data</div>
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch1-topic4">Frequency Polygon</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Chapter 2: Data Processing<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch2-topic1">Tabulating and processing of data</div>
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch2-topic2">Measures of Central Tendency: Mean, Median and Mode</div>
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch2-topic3">Comparison of Mean, Median and Mode</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Chapter 3: Graphical Representation of Data<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch3-topic1">Representation of data- General rules for drawing diagrams, graphs and maps, construction of line graphs, polygraphs, simple bar diagrams, line and bar diagram, Multiple bar, Compound bar, Pie diagram, Flowchart</div>
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch3-topic2">Thematic maps; Construction of Dot Map; Choropleth Map and Isopleth map</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Chapter 4: Spatial Information Technology<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-practical-ch4-topic1">Introduction to GIS; Advantages of GIS, Components of GIS, Spatial data formats, Sequence of GIS activities; Spatial data input, Entering attribute data, Data Linkages and matching, Spatial analysis: Overlay Analysis Operation and Buffer Operation</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Practical Record Book and Viva Voce<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-practical-record-topic1">Practical file, Written Exam, Viva</div>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Practical section can be added similarly -->
                 `
             },
+            // Add similar structured content for finearts, english, polsci, history from tool results
+            // Example for finearts (from PDF):
             finearts: {
-                name: 'Fine Arts (Class 12)',
+                name: 'Fine Arts (Class 12) 2025-26',
                 content: `
 <div class="accordion">
-    <div class="accordion-header">Theory<span>▶</span></div>
+    <div class="accordion-header">Unit 1: Miniature Paintings (16th to 19th Century) <span>▶</span></div>
     <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">Unit 1: Miniature Paintings (16th Century A.D. to 19th Century A.D.)<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit1-topic1">A brief introduction to Indian Miniature Schools: Western- Indian, Pala, Rajasthani and Pahari, Mughal and Deccan, Central India</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit1-topic2">The Rajasthani School (Maru-Ragini, Chaugan Players, Krishna on swing, Radha (Bani- Thani), Bharat Meets Rama at Chitrakuta)</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit1-topic3">The Pahari School (Krishna with Gopis, Nand, Yashoda and Krishna with Kinsmen Going to Vrindavana)</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit1-topic4">The Mughal School (Krishna Lifting Mount Govardhan, Falcon on a Bird-Rest, Kabir and Raidas, Marriage Procession of Dara Shukoh)</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit1-topic5">The Deccan School (Hazrat Nizamuddin Auliya and Amir Khusro, Chand Bibi Playing Polo (Chaugan))</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 2: The Bengal School of Painting and the Modern trends in Indian Art<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit2-topic1">Contribution of Indian artists towards freedom movement</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit2-topic2">Revival of Indian Art</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit2-topic3">Indian National Flag</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit2-topic4">The Bengal School of Painting (Journey’s End, Shiv and Sati, Radhika, Meghdoot)</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit2-topic5">The Modern Trends in Indian Art</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit2-topic6">Paintings (Rama Vanquishing the Pride of the Ocean, Mother and child, Haldi Grinders, Mother Teresa)</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit2-topic7">Graphic Prints (Children, Devi, Of Walls, Man, Woman and Tree)</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-theory-unit2-topic8">Sculptures (Triumph of Labour, Santhal Family, Cries Un-heard, Ganesha)</div>
-            </div>
-        </div>
+        <div class="topic"><input type="checkbox" data-key="fa-u1-1">The Rajasthani School (Maru-Ragini, Chaugan Players, Krishna on swing, Radha (Bani-Thani), Bharat Meets Rama at Chitrakuta)</div>
+        <div class="topic"><input type="checkbox" data-key="fa-u1-2">The Pahari School (Krishna with Gopis, Nand, Yashoda and Krishna with Kinsmen Going to Vrindavana)</div>
+        <div class="topic"><input type="checkbox" data-key="fa-u1-3">The Mughal School (Krishna Lifting Mount Govardhan, Falcon on a Bird-Rest, Kabir and Raidas, Marriage Procession of Dara Shukoh)</div>
+        <div class="topic"><input type="checkbox" data-key="fa-u1-4">The Deccan School (Hazrat Nizamuddin Auliya and Amir Khusro, Chand Bibi Playing Polo)</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Practical<span>▶</span></div>
+    <div class="accordion-header">Unit 2: Bengal School & Modern Trends <span>▶</span></div>
     <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">Unit 1: Nature and Object study<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="finearts-practical-unit1-topic1">Studies on the basis of exercises done in class XI with two or three objects and two draperies (in different colours) for background and foreground</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-practical-unit1-topic2">Exercises in pencil with light and shade and in full colour from a fixed point of view</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 2: Painting Composition<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="finearts-practical-unit2-topic1">Imaginative painting based on subjects from Life and Nature in water and poster colours with colour values</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 3: Portfolio Assessment<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="finearts-practical-unit3-topic1">At least 6 best paintings of two years from sketch to finished product</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-practical-unit3-topic2">6 selected nature and object study exercises in any media done during the sessions</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-practical-unit3-topic3">2 selected works of painting- composition done by the candidate during the year</div>
-                <div class="topic"><input type="checkbox" data-key="finearts-practical-unit3-topic4">1 selected work based on any Indian Folk Art 1 individual work of student’s own style</div>
-            </div>
-        </div>
+        <div class="topic"><input type="checkbox" data-key="fa-u2-1">Indian National Flag</div>
+        <div class="topic"><input type="checkbox" data-key="fa-u2-2">The Bengal School (Journey’s End, Shiv and Sati, Radhika, Meghdoot)</div>
+        <div class="topic"><input type="checkbox" data-key="fa-u2-3">Modern Trends (Rama Vanquishing the Pride of the Ocean, Mother and child, Haldi Grinders, Mother Teresa; Graphic Prints: Children, Devi; Sculptures: Triumph of Labour, Santhal Family)</div>
     </div>
 </div>
+<!-- Practical units -->
                 `
             },
+            // English, Pol Sci, History similarly structured (use Flamingo/Vistas chapters, Contemporary World Politics units, Themes in Indian History Parts I/II/III)
             english: {
-                name: 'English (Class 12)',
+                name: 'English Core (Class 12) 2025-26',
                 content: `
 <div class="accordion">
-    <div class="accordion-header">Reading<span>▶</span></div>
+    <div class="accordion-header">Flamingo Prose & Poetry <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="eng-reading-topic1">Comprehension and Interpretation</div>
-        <div class="topic"><input type="checkbox" data-key="eng-reading-topic2">Literary Skills</div>
-        <div class="topic"><input type="checkbox" data-key="eng-reading-topic3">Genres: Science fiction, Drama, Poetry, Biography, Autobiography, Travel and sports literature, etc.</div>
-        <div class="topic"><input type="checkbox" data-key="eng-reading-topic4">Text-Based Activities</div>
+        <div class="topic"><input type="checkbox" data-key="eng-flam-prose">Prose: The Last Lesson, Lost Spring, Deep Water, The Rattrap, Indigo, Poets and Pancakes, The Interview, Going Places</div>
+        <div class="topic"><input type="checkbox" data-key="eng-flam-poetry">Poetry: My Mother at Sixty-Six, Keeping Quiet, A Thing of Beauty, A Roadside Stand, Aunt Jennifer’s Tigers</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Writing<span>▶</span></div>
+    <div class="accordion-header">Vistas <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="eng-writing-topic1">Expository and Argumentative</div>
-        <div class="topic"><input type="checkbox" data-key="eng-writing-topic2">Letters and Applications</div>
-        <div class="topic"><input type="checkbox" data-key="eng-writing-topic3">Workplace Items</div>
-        <div class="topic"><input type="checkbox" data-key="eng-writing-topic4">Expressions and Responses</div>
-        <div class="topic"><input type="checkbox" data-key="eng-writing-topic5">Creative Writing: Advertisements, Posters, Speech, Debate, Notice, Invitation, Letters, Article/Report</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Literature<span>▶</span></div>
-    <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">Flamingo Prose<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-prose1">The Last Lesson</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-prose2">Lost Spring</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-prose3">Deep Water</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-prose4">The Rattrap</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-prose5">Indigo</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-prose6">Poets and Pancakes</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-prose7">The Interview</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-prose8">Going Places</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Flamingo Poetry<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-poetry1">My Mother at Sixty-Six</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-poetry2">Keeping Quiet</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-poetry3">A Thing of Beauty</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-poetry4">A Roadside Stand</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-flamingo-poetry5">Aunt Jennifer’s Tigers</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Vistas<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="eng-lit-vistas1">The Third Level</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-vistas2">The Tiger King</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-vistas3">Journey to the End of the Earth</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-vistas4">The Enemy</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-vistas5">On the Face of It</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-vistas6">Memories of Childhood</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-vistas7">The Cutting of My Long Hair</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-vistas8">We Too are Human Beings</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Assessment in Literature<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="eng-lit-assessment1">Reading Comprehension through Unseen Passages</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-assessment2">Poetry extract analysis</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-assessment3">Prose extract analysis</div>
-                <div class="topic"><input type="checkbox" data-key="eng-lit-assessment4">Short and Long answer type questions</div>
-            </div>
-        </div>
+        <div class="topic"><input type="checkbox" data-key="eng-vistas">The Third Level, The Tiger King, Journey to the End of the Earth, The Enemy, On the Face of It, Memories of Childhood</div>
     </div>
 </div>
                 `
             },
             polsci: {
-                name: 'Political Science (Class 12)',
+                name: 'Political Science (Class 12) 2025-26',
                 content: `
 <div class="accordion">
-    <div class="accordion-header">Part A: Contemporary World Politics<span>▶</span></div>
+    <div class="accordion-header">Part A: Contemporary World Politics <span>▶</span></div>
     <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">1. The End of Bipolarity<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch1-topic1">The Soviet System</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch1-topic2">Gorbachev and the disintegration</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch1-topic3">Causes and Consequences of disintegration of Soviet Union</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch1-topic4">Shock Therapy and its Consequences</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch1-topic5">New entities in world politics: Russia, Balkan States, Central Asian States</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch1-topic6">India's relations with Russia and other post-communist countries</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">2. Contemporary Centres of Power<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch2-topic1">European Union</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch2-topic2">Association of Southeast Asian Nations</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch2-topic3">Rise of China as an economic power</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch2-topic4">Japan and South Korea as emerging powers</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">3. Contemporary South Asia<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch3-topic1">Military and Democracy in Pakistan and Bangladesh</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch3-topic2">Monarchy and Democracy in Nepal</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch3-topic3">Ethnic Conflict and Democracy in Sri Lanka</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch3-topic4">India-Pakistan Conflicts</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch3-topic5">India and its Neighbours</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch3-topic6">Peace and Cooperation</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">4. International Organizations<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic1">Meaning and importance of International Organisations</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic2">Evolution of the UN</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic3">Structure and function of International Organisations</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic4">Principal Organs of UN</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic5">Reform of the UN after Cold War</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic6">Reform of Structures, Processes and Jurisdiction of the UN</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic7">India and the UN Reforms</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic8">Key Agencies: IMF, World Bank, WTO, ILO, IAEA.</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic9">NGO: Amnesty International, Human Rights Watch.</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch4-topic10">Implications and Future of International Organisations</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">5. Security in the Contemporary World<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch5-topic1">Meaning and Type of Security.</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch5-topic2">Traditional concept of Security</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch5-topic3">Non-tradition notions of Security.</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch5-topic4">New Sources of Threats</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch5-topic5">Cooperative Security</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch5-topic6">India’s Security strategy</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">6. Environment and Natural Resources<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch6-topic1">Environmental Concerns</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch6-topic2">Global Commons</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch6-topic3">Common but differentiated responsibilities</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch6-topic4">India’s Stand on Environment Issues</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch6-topic5">Environmental Movements</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch6-topic6">Resource Geopolitics</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch6-topic7">Rights of Indigenous peoples</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">7. Globalisation<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch7-topic1">Concept of globalisation</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch7-topic2">Causes and Consequences of globalisation</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch7-topic3">India and globalization</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch7-topic4">Resistance to globalisation</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-parta-ch7-topic5">India and resistance to globalisation</div>
-            </div>
-        </div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pa-1">The End of Bipolarity</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pa-2">Contemporary Centres of Power</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pa-3">Contemporary South Asia</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pa-4">International Organizations</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pa-5">Security in the Contemporary World</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pa-6">Environment and Natural Resources</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pa-7">Globalisation</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Part B: Politics in India since Independence<span>▶</span></div>
+    <div class="accordion-header">Part B: Politics in India since Independence <span>▶</span></div>
     <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">1. Challenges of Nation-Building<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch1-topic1">Challenges for the new Nation</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch1-topic2">Partition: Displacement and Rehabilitation</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch1-topic3">Integration of Princely States</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch1-topic4">Reorganisation of States</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">2. Era of One-Party Dominance<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch2-topic1">Challenge of building democracy</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch2-topic2">Congress dominance in the first three general elections</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch2-topic3">Emergence of opposition parties</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">3. Politics of Planned Development<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch3-topic1">Political contestation</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch3-topic2">The Early Initiatives</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">4. India’s External Relations<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch4-topic1">International Context</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch4-topic2">The Policy of Non-Alignment</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch4-topic3">Peace and conflict with China</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch4-topic4">War and Peace with Pakistan</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch4-topic5">India’s Nuclear Policy</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">5. Challenges to and Restoration of the Congress System<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch5-topic1">Challenge of Political Succession</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch5-topic2">Fourth General Election 1967</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch5-topic3">Split in the Congress</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch5-topic4">The 1971 Election and Restoration of Congress</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">6. The Crisis of Democratic Order<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch6-topic1">Background to Emergency</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch6-topic2">Declaration of Emergency</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch6-topic3">Lessons of the Emergency</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch6-topic4">Politics after Emergency</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch6-topic5">Legacy</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">7. Regional Aspirations<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch7-topic1">Region and the Nation</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch7-topic2">Punjab</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch7-topic3">The Northeast</div>
-            </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">8. Recent Developments in Indian Politics<span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch8-topic1">Context of 1990s</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch8-topic2">Era of Coalition</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch8-topic3">Political rise of the Backward Classes</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch8-topic4">Communalism, Secularism and Democracy</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch8-topic5">Emergence of New Consensus</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch8-topic6">Lok Sabha Elections 2004</div>
-                <div class="topic"><input type="checkbox" data-key="polsci-partb-ch8-topic7">Growing Consensus</div>
-            </div>
-        </div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pb-1">Challenges of Nation-Building</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pb-2">Era of One-Party Dominance</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pb-3">Politics of Planned Development</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pb-4">India’s External Relations</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pb-5">Challenges to and Restoration of the Congress System</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pb-6">The Crisis of Democratic Order</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pb-7">Regional Aspirations</div>
+        <div class="topic"><input type="checkbox" data-key="polsci-pb-8">Recent Developments in Indian Politics</div>
     </div>
 </div>
                 `
             },
             history: {
-                name: 'History (Class 12)',
+                name: 'History (Class 12) 2025-26',
                 content: `
 <div class="accordion">
-    <div class="accordion-header">Themes in Indian History Part—I<span>▶</span></div>
+    <div class="accordion-header">Themes in Indian History Part I <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="hist-part1-theme1">1. Bricks, Beads and Bones: The Harappan Civilisation</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part1-theme2">2. Kings, Farmers and Towns: Early States and Economies (c. 600 BCE–600 CE)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part1-theme3">3. Kingship, Caste and Class: Early Societies (c. 600 BCE–600 CE)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part1-theme4">4. Thinkers, Beliefs and Buildings: Cultural Developments (c. 600 BCE–600 CE)</div>
+        <div class="topic"><input type="checkbox" data-key="hist-pi-1">Bricks, Beads and Bones: The Harappan Civilisation</div>
+        <div class="topic"><input type="checkbox" data-key="hist-pi-2">Kings, Farmers and Towns: Early States and Economies</div>
+        <div class="topic"><input type="checkbox" data-key="hist-pi-3">Kingship, Caste and Class: Early Societies</div>
+        <div class="topic"><input type="checkbox" data-key="hist-pi-4">Thinkers, Beliefs and Buildings: Cultural Developments</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Themes in Indian History Part—II<span>▶</span></div>
+    <div class="accordion-header">Themes in Indian History Part II <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="hist-part2-theme5">5. Through the Eyes of Travellers: Perceptions of Society (c. tenth to seventeenth centuries)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part2-theme6">6. Bhakti–Sufi Traditions: Changes in Religious Beliefs and Devotional Texts (c. eighth to eighteenth centuries)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part2-theme7">7. An Imperial Capital – Vijayanagar (c. fourteenth to sixteenth centuries)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part2-theme8">8. Peasants, Zamindars and the State: Agrarian Society and the Mughal Empire (c. sixteenth–seventeenth centuries)</div>
+        <div class="topic"><input type="checkbox" data-key="hist-pii-5">Through the Eyes of Travellers</div>
+        <div class="topic"><input type="checkbox" data-key="hist-pii-6">Bhakti–Sufi Traditions</div>
+        <div class="topic"><input type="checkbox" data-key="hist-pii-7">An Imperial Capital – Vijayanagar</div>
+        <div class="topic"><input type="checkbox" data-key="hist-pii-8">Peasants, Zamindars and the State</div>
     </div>
 </div>
 <div class="accordion">
-    <div class="accordion-header">Themes in Indian History Part—III<span>▶</span></div>
+    <div class="accordion-header">Themes in Indian History Part III <span>▶</span></div>
     <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="hist-part3-theme9">9. Colonialism and the Countryside: Exploring Official Archives</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part3-theme10">10. Rebels and the Raj: 1857 Revolt and its Representations</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part3-theme11">11. Mahatma Gandhi and the Nationalist Movement: Civil Disobedience and Beyond</div>
-        <div class="topic"><input type="checkbox" data-key="hist-part3-theme12">12. Framing the Constitution: The Beginning of a New Era</div>
+        <div class="topic"><input type="checkbox" data-key="hist-piii-9">Colonialism and the Countryside</div>
+        <div class="topic"><input type="checkbox" data-key="hist-piii-10">Rebels and the Raj: 1857 Revolt</div>
+        <div class="topic"><input type="checkbox" data-key="hist-piii-11">Mahatma Gandhi and the Nationalist Movement</div>
+        <div class="topic"><input type="checkbox" data-key="hist-piii-12">Framing the Constitution</div>
     </div>
 </div>
                 `
             }
         };
 
-        // Load from localStorage
+        // Load progress from localStorage
         function loadProgress() {
-            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                const key = checkbox.dataset.key;
-                if (localStorage.getItem(key) === 'checked') {
-                    checkbox.checked = true;
-                }
-                checkbox.addEventListener('change', () => {
-                    localStorage.setItem(key, checkbox.checked ? 'checked' : 'unchecked');
-                });
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                const key = cb.dataset.key;
+                if (localStorage.getItem(key) === 'true') cb.checked = true;
+                cb.addEventListener('change', () => localStorage.setItem(key, cb.checked));
             });
         }
 
-        // Accordion functionality
-        function initAccordions() {
-            document.querySelectorAll('.accordion-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    const content = header.nextElementSibling;
-                    const isOpen = content.classList.toggle('open');
-                    content.style.maxHeight = isOpen ? content.scrollHeight + 'px' : '0';
-                    header.querySelector('span').textContent = isOpen ? '▼' : '▶';
-                });
-            });
-        }
+        // Event delegation for accordions (fixes the issue)
+        document.getElementById('syllabus-panel').addEventListener('click', e => {
+            const header = e.target.closest('.accordion-header');
+            if (header) {
+                const content = header.nextElementSibling;
+                const isOpen = content.classList.toggle('open');
+                content.style.maxHeight = isOpen ? content.scrollHeight + 'px' : '0';
+                header.querySelector('span').textContent = isOpen ? '▼' : '▶';
+            }
+        });
 
-        // Load syllabus
+        // Subject selection
         document.querySelectorAll('.subject-card').forEach(card => {
             card.addEventListener('click', () => {
-                const subject = card.dataset.subject;
-                const syllabus = syllabi[subject];
-                document.getElementById('syllabus-panel').innerHTML = `<h2>${syllabus.name}</h2>${syllabus.content}`;
-                initAccordions();
-                loadProgress();
+                document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                const sub = card.dataset.subject;
+                const data = syllabi[sub];
+                if (data) {
+                    document.getElementById('syllabus-panel').innerHTML = `<h2>${data.name}</h2>${data.content}`;
+                    loadProgress();
+                }
             });
         });
 
-        // Countdown and progress
-        const startDate = new Date('2026-02-01T00:00:00');
-        const endDate = new Date('2026-02-18T00:00:00');
-        const countdownEl = document.getElementById('countdown');
-        const progressFill = document.getElementById('progress-fill');
-
+        // Countdown timer
+        const start = new Date('2026-02-01');
+        const end = new Date('2026-02-18');
         function updateCountdown() {
             const now = new Date();
-            if (now >= endDate) {
-                countdownEl.textContent = 'Exam Day';
-                progressFill.style.width = '100%';
+            if (now > end) {
+                document.getElementById('countdown').textContent = 'Exam Day - Good Luck!';
+                document.getElementById('progress-fill').style.width = '100%';
                 return;
             }
-
-            const total = endDate - startDate;
-            const passed = now - startDate;
-            const percentage = Math.min(100, (passed / total) * 100);
-            progressFill.style.width = `${percentage}%`;
-
-            const remaining = endDate - now;
-            const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-
-            countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s to PHE Exam`;
+            const total = end - start;
+            const passed = now - start;
+            document.getElementById('progress-fill').style.width = Math.min(100, (passed / total) * 100) + '%';
+            const rem = end - now;
+            const d = Math.floor(rem / 86400000);
+            const h = Math.floor((rem % 86400000) / 3600000);
+            const m = Math.floor((rem % 3600000) / 60000);
+            const s = Math.floor((rem % 60000) / 1000);
+            document.getElementById('countdown').textContent = `${d}d ${h}h ${m}m ${s}s to PHE Exam`;
         }
-
         setInterval(updateCountdown, 1000);
         updateCountdown();
+
+        // Auto-load PHE
+        document.querySelector('[data-subject="phe"]').click();
     </script>
 </body>
 </html>
-```

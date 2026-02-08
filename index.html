@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Countdown to 18 Feb</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 420px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .bar {
+      width: 100%;
+      height: 20px;
+      background: #1e293b;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+
+    .progress {
+      height: 100%;
+      background: #38bdf8;
+      width: 0%;
+      transition: width 1s linear;
+    }
+
+    .time {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    .small {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>⏳ Countdown to 18 Feb</h1>
+
+  <div class="bar">
+    <div class="progress" id="progress"></div>
+  </div>
+
+  <div class="time" id="countdown"></div>
+  <div class="small" id="passed"></div>
+</div>
+
+<script>
+  // CHANGE YEAR IF NEEDED
+  const startDate = new Date("2026-01-01T00:00:00");
+  const targetDate = new Date("2026-02-18T00:00:00");
+
+  function updateTimer() {
+    const now = new Date();
+
+    const total = targetDate - startDate;
+    const passed = now - startDate;
+    const left = targetDate - now;
+
+    if (left <= 0) {
+      document.getElementById("countdown").innerText = "🎉 It's 18th Feb!";
+      document.getElementById("progress").style.width = "100%";
+      return;
+    }
+
+    // Progress bar
+    const percent = Math.min((passed / total) * 100, 100);
+    document.getElementById("progress").style.width = percent + "%";
+
+    // Time left
+    const days = Math.floor(left / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((left / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((left / (1000 * 60)) % 60);
+    const seconds = Math.floor((left / 1000) % 60);
+
+    document.getElementById("countdown").innerText =
+      `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+
+    // Time passed
+    const passedDays = Math.floor(passed / (1000 * 60 * 60 * 24));
+    document.getElementById("passed").innerText =
+      `Time passed: ${passedDays} days`;
+  }
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+</script>
+
+</body>
+</html>

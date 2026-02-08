@@ -1,107 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Countdown to 18 Feb</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<meta charset="UTF-8">
+<title>Countdown to 18 Feb</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .container {
-      width: 420px;
-      text-align: center;
-    }
+<style>
+:root {
+  --bg: #020617;
+  --card: rgba(255,255,255,0.08);
+  --accent: #38bdf8;
+  --text: #e5e7eb;
+}
 
-    h1 {
-      margin-bottom: 20px;
-    }
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
 
-    .bar {
-      width: 100%;
-      height: 20px;
-      background: #1e293b;
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 15px 0;
-    }
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0f172a, var(--bg));
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    .progress {
-      height: 100%;
-      background: #38bdf8;
-      width: 0%;
-      transition: width 1s linear;
-    }
+.card {
+  width: 90%;
+  max-width: 480px;
+  background: var(--card);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+}
 
-    .time {
-      font-size: 18px;
-      margin-top: 10px;
-    }
+h1 {
+  text-align: center;
+  margin: 0 0 15px;
+  font-size: 1.8rem;
+}
 
-    .small {
-      font-size: 14px;
-      opacity: 0.8;
-    }
-  </style>
+.big-time {
+  text-align: center;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+}
+
+.progress-wrap {
+  background: #020617;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 18px;
+  margin: 12px 0;
+}
+
+.progress {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  transition: width 1s linear;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-top: 8px;
+}
+
+.percent {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+</style>
 </head>
+
 <body>
 
-<div class="container">
-  <h1>⏳ Countdown to 18 Feb</h1>
+<div class="card">
+  <h1>⏳ Countdown to 18 February</h1>
 
-  <div class="bar">
+  <div class="big-time" id="timeLeft">Loading...</div>
+
+  <div class="progress-wrap">
     <div class="progress" id="progress"></div>
   </div>
 
-  <div class="time" id="countdown"></div>
-  <div class="small" id="passed"></div>
+  <div class="stats">
+    <span id="timePassed"></span>
+    <span id="timeRemaining"></span>
+  </div>
+
+  <div class="percent" id="percentDone"></div>
+
+  <div class="footer">
+    ticking every second ⏱️
+  </div>
 </div>
 
 <script>
-  // CHANGE YEAR IF NEEDED
-  const startDate = new Date("2026-01-01T00:00:00");
-  const targetDate = new Date("2026-02-18T00:00:00");
+const startDate = new Date("2026-01-01T00:00:00");
+const targetDate = new Date("2026-02-18T00:00:00");
 
-  function updateTimer() {
-    const now = new Date();
+function format(ms) {
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${d}d ${h}h ${m}m ${sec}s`;
+}
 
-    const total = targetDate - startDate;
-    const passed = now - startDate;
-    const left = targetDate - now;
+function update() {
+  const now = new Date();
+  const total = targetDate - startDate;
+  const passed = now - startDate;
+  const left = targetDate - now;
 
-    if (left <= 0) {
-      document.getElementById("countdown").innerText = "🎉 It's 18th Feb!";
-      document.getElementById("progress").style.width = "100%";
-      return;
-    }
-
-    // Progress bar
-    const percent = Math.min((passed / total) * 100, 100);
-    document.getElementById("progress").style.width = percent + "%";
-
-    // Time left
-    const days = Math.floor(left / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((left / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((left / (1000 * 60)) % 60);
-    const seconds = Math.floor((left / 1000) % 60);
-
-    document.getElementById("countdown").innerText =
-      `${days}d ${hours}h ${minutes}m ${seconds}s left`;
-
-    // Time passed
-    const passedDays = Math.floor(passed / (1000 * 60 * 60 * 24));
-    document.getElementById("passed").innerText =
-      `Time passed: ${passedDays} days`;
+  if (left <= 0) {
+    document.getElementById("timeLeft").innerText = "🎉 It's 18 February!";
+    document.getElementById("progress").style.width = "100%";
+    document.getElementById("percentDone").innerText = "100% completed";
+    return;
   }
 
-  updateTimer();
-  setInterval(updateTimer, 1000);
+  const percent = Math.min((passed / total) * 100, 100);
+
+  document.getElementById("progress").style.width = percent + "%";
+  document.getElementById("timeLeft").innerText = format(left) + " left";
+  document.getElementById("timePassed").innerText = "Passed: " + format(passed);
+  document.getElementById("timeRemaining").innerText = "Remaining: " + format(left);
+  document.getElementById("percentDone").innerText =
+    percent.toFixed(2) + "% completed";
+}
+
+update();
+setInterval(update, 1000);
 </script>
 
 </body>

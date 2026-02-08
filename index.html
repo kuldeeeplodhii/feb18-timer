@@ -3,421 +3,1004 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class 12 Exam Dashboard 2026 - PHE Focus</title>
+    <title>Class 12 Exam Dashboard</title>
     <style>
-        body { background: #0f0f0f; color: #e0e0e0; font-family: system-ui, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-        header { background: #1a1a1a; padding: 1.5rem; text-align: center; border-bottom: 1px solid #333; }
-        #countdown { font-size: 2.2rem; margin-bottom: 0.8rem; font-weight: 600; }
-        #progress-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-        #progress-fill { height: 100%; width: 0; background: #4caf50; transition: width 0.6s ease; }
-        main { display: flex; flex: 1; }
-        #sidebar { width: 280px; background: #1a1a1a; padding: 1.5rem; border-right: 1px solid #333; overflow-y: auto; }
-        .subject-card { background: #222; padding: 1rem; margin-bottom: 0.8rem; border-radius: 8px; cursor: pointer; transition: all 0.25s ease; }
-        .subject-card:hover, .subject-card.active { background: #333; transform: translateX(6px); }
-        #syllabus-panel { flex: 1; padding: 2rem; overflow-y: auto; }
-        .accordion { background: #222; border-radius: 8px; margin: 1rem 0; overflow: hidden; }
-        .accordion-header { padding: 1rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #282828; transition: background 0.3s; }
-        .accordion-header:hover { background: #333; }
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out, padding 0.3s ease; padding: 0 1.5rem; }
-        .accordion-content.open { padding: 1rem 1.5rem; }
-        .topic { display: flex; align-items: center; margin: 0.8rem 0; font-size: 0.95rem; }
-        input[type="checkbox"] { margin-right: 12px; width: 18px; height: 18px; accent-color: #4caf50; cursor: pointer; }
-        h2 { margin-top: 0; color: #fff; }
-        @media (max-width: 768px) { main { flex-direction: column; } #sidebar { width: 100%; border-right: none; border-bottom: 1px solid #333; } }
+        :root {
+            --bg-body: #0f0f11;
+            --bg-card: #18181b;
+            --bg-card-hover: #202025;
+            --text-main: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6; /* Modern Blue */
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --border: #27272a;
+            --success: #10b981;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Utils */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        .hidden { display: none !important; }
+        
+        /* Typography */
+        h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.02em; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .text-muted { color: var(--text-muted); }
+
+        /* Header & Countdown */
+        header {
+            margin-bottom: 2.5rem;
+        }
+
+        .countdown-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .timer-display {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .time-unit .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+            line-height: 1;
+        }
+
+        .time-unit .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .progress-container {
+            background: #27272a;
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 1.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: var(--accent);
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        /* Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* Date Sheet (Sidebar) */
+        .datesheet {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .datesheet-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .subject-list {
+            list-style: none;
+        }
+
+        .subject-item {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subject-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .subject-item.active {
+            background: var(--accent-glow);
+            border-left-color: var(--accent);
+        }
+
+        .subject-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Syllabus Panel */
+        .syllabus-panel {
+            min-height: 400px;
+        }
+
+        .syllabus-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--success);
+        }
+
+        /* Accordion System */
+        .part-section {
+            margin-bottom: 2rem;
+        }
+        
+        .part-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .unit-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .unit-card:hover {
+            border-color: #3f3f46;
+            transform: translateY(-1px);
+        }
+
+        .unit-header {
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .unit-title {
+            font-weight: 500;
+        }
+
+        .toggle-icon {
+            width: 20px;
+            height: 20px;
+            position: relative;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toggle-icon::before, .toggle-icon::after {
+            content: '';
+            position: absolute;
+            background-color: var(--text-muted);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .toggle-icon::before { width: 12px; height: 2px; }
+        .toggle-icon::after { width: 2px; height: 12px; transition: height 0.3s ease; }
+
+        .unit-card.expanded .toggle-icon { transform: rotate(90deg); }
+        .unit-card.expanded .toggle-icon::after { height: 0; }
+
+        .unit-content {
+            height: 0;
+            overflow: hidden;
+            transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .topic-list {
+            padding: 1rem;
+        }
+
+        /* Topics & Checkboxes */
+        .topic-item {
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+        }
+
+        .topic-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .sub-topic-list {
+            margin-left: 2rem;
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            border-left: 1px solid var(--border);
+        }
+
+        .custom-checkbox {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .custom-checkbox:checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 1px;
+            width: 4px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .topic-label {
+            cursor: pointer;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .custom-checkbox:checked + .topic-label {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .dashboard-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .datesheet { position: static; margin-bottom: 1rem; }
+            .timer-display { gap: 0.5rem; }
+            .time-unit .value { font-size: 1.75rem; }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <div id="countdown"></div>
-        <div id="progress-bar"><div id="progress-fill"></div></div>
-    </header>
-    <main>
-        <aside id="sidebar">
-            <div class="subject-card active" data-subject="phe">Physical Education (PHE) — 18 Feb 2026</div>
-            <div class="subject-card" data-subject="geography">Geography — 26 Feb 2026</div>
-            <div class="subject-card" data-subject="finearts">Fine Arts — 27 Feb 2026</div>
-            <div class="subject-card" data-subject="english">English — 12 Mar 2026</div>
-            <div class="subject-card" data-subject="polsci">Political Science — 23 Mar 2026</div>
-            <div class="subject-card" data-subject="history">History — 30 Mar 2026</div>
-        </aside>
-        <section id="syllabus-panel"></section>
-    </main>
 
-    <script>
-        const syllabi = {
-            phe: {
-                name: 'Physical Education (CBSE Class 12 – Code 048) 2025-26',
-                content: `
-<div class="accordion">
-    <div class="accordion-header">Unit I: Management of Sporting Events <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u1-1">Functions of Sports Events Management (Planning, Organising, Staffing, Directing & Controlling)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u1-2">Various Committees & their Responsibilities (pre; during & post)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u1-3">Fixtures and its Procedures - Knock-Out (Bye & Seeding) & League (Staircase, Cyclic, Tabular Method) and Combination tournaments</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u1-4">Intramural & Extramural tournaments – Meaning, Objectives & Its Significance</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u1-5">Community sports program (Sports Day, Health Run, Run for Fun, Run for Specific Cause & Run for Unity)</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit II: Children & Women in Sports <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u2-1">Exercise guidelines of WHO for different age groups</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u2-2">Common Postural Deformities- Knock Knee, Flat Foot, Round Shoulders, Lordosis, Kyphosis, Scoliosis, and Bow Legs and their respective corrective measures</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u2-3">Women’s participation in Sports–Physical, Psychological, and social benefits</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u2-4">Special consideration (Menarche & Menstrual Dysfunction)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u2-5">Female Athletes Triad (Osteoporosis, Amenorrhea, Eating Disorders)</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit III: Yoga as Preventive measure for Lifestyle Disease <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u3-obesity">Obesity: Procedure, Benefits & Contraindications for Tadasana, Katichakrasana, Pavanmuktasana, Matsyasana, Halasana, Paschimottanasana, Ardha Matsyendrasana, Dhanurasana, Ushtrasana, Suryabhedana pranayama</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u3-diabetes">Diabetes: Procedure, Benefits & Contraindications for Katichakrasana, Pavanmuktasana, Bhujangasana, Shalabhasana, Dhanurasana, Supta-vajarasana, Paschimottanasana, Ardha Matsyendrasana, Mandukasana, Gomukhasana, Yogmudra, Ushtrasana, Kapalabhati</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u3-asthma">Asthma: Procedure, Benefits & Contraindications for Tadasana, Urdhwahastottanasana, UttanMandukasana, Bhujangasana, Dhanurasana, Ushtrasana, Vakrasana, Kapalbhati, Gomukhasana, Matsyasana, Anuloma-Viloma</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u3-hypertension">Hypertension: Procedure, Benefits & Contraindications for Tadasana, Katichakrasana, Uttanpadasana, Ardha Halasana, Sarala Matsyasana, Gomukhasana, UttanMandukasana, Vakrasana, Bhujangasana, Makarasana, Shavasana, Nadi shodhanapranayam, Sitli pranayam</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u3-backpain">Back Pain and Arthritis: Procedure, Benefits & Contraindications for Tadasana, Urdhawahastootansana, Ardh-Chakrasana, Ushtrasana, Vakrasana, Sarala Matsyendrasana, Bhujangasana, Gomukhasana, Bhadrasana, Makarasana, Nadi-Shodhana pranayama</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit IV: Physical Education & Sports for CWSN (Divyang) <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u4-1">Organizations promoting Disability Sports (Special Olympics; Paralympics; Deaflympics)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u4-2">Concept of Classification and Divisioning in Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u4-3">Concept of Inclusion in sports, its need, and Implementation</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u4-4">Advantages of Physical Activities for children with special needs</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u4-5">Strategies to make Physical Activities assessable for children with special needs</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit V: Sports & Nutrition <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u5-1">Concept of balanced diet and nutrition</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u5-2">Macro and Micro Nutrients: Food sources & functions</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u5-3">Nutritive & Non-Nutritive Components of Diet</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u5-4">Eating for Weight control– A Healthy Weight, The Pitfalls of Dieting, Food Intolerance, & Food Myths</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u5-5">Importance of Diet in Sports-Pre, During and Post competition Requirements</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit VI: Test & Measurement in Sports <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u6-1">Fitness Test- SAI Khelo India Fitness Test in school: Age group 5-8 yrs/class 1-3: BMI, Flamingo Balance Test, Plate Tapping Test; Age group 9-18yrs/class 4-12: BMI, 50mt Speed test, 600mt Run/Walk, Sit & Reach flexibility test, Strength Test (Partial Abdominal Curl Up, Push-Ups for boys, Modified Push-Ups for girls)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u6-2">Measurement of Cardio-Vascular Fitness: Harvard Step Test = (Duration of the Exercise in Seconds x100) / (5.5 x Pulse count of 1-1.5 Min after Exercise)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u6-3">Computing Basal Metabolic Rate (BMR)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u6-4">Rikli & Jones - Senior Citizen Fitness Test (Chair Stand Test for lower body strength, Arm Curl Test for upper body strength, Chair Sit & Reach Test for lower body flexibility, Back Scratch Test for upper body flexibility, Eight Foot Up & Go Test for agility, Six Minute Walk Test for Aerobic Endurance)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u6-5">Johnsen – Methney Test of Motor Educability: (Front Roll, Roll, Jumping Half-Turn, Jumping full turn)</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit VII: Physiology & Injuries in Sports <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u7-1">Physiological factors determining components of physical fitness</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u7-2">Effect of exercise on Muscular System</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u7-3">Effect of exercise on Cardio-Respiratory System</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u7-4">Physiological changes due to aging</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u7-5">Sports injuries: Classification (Soft Tissue Injuries: Abrasion, Contusion, Laceration, Incision, Sprain & Strain; Bone & Joint Injuries: Dislocation; Fractures - Green Stick, Comminuted, Transverse, Oblique & Impacted)</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit VIII: Biomechanics & Sports <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u8-1">Newton’s Law of Motion & its application in sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u8-2">Types of Levers and their application in Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u8-3">Equilibrium – Dynamic & Static and Centre of Gravity and its application in sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u8-4">Friction & Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u8-5">Projectile in Sports</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit IX: Psychology & Sports <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u9-1">Personality; its definition & types (Jung Classification & Big Five Theory)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u9-2">Motivation, its type & techniques</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u9-3">Exercise Adherence: Reasons, Benefits & Strategies for Enhancing it</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u9-4">Meaning, Concept & Types of Aggressions in Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u9-5">Psychological Attributes in Sports – Self Esteem, Mental Imagery, Self Talk, Goal Setting</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Unit X: Training in Sports <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-u10-1">Concept of Talent Identification and Talent Development in Sports</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u10-2">Introduction to Sports Training Cycle – Micro, Meso, Macro Cycle</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u10-3">Types & Method to Develop- Strength, Endurance and Speed</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u10-4">Types & Method to Develop – Flexibility and Coordinative Ability</div>
-        <div class="topic"><input type="checkbox" data-key="phe-u10-5">Circuit Training -Introduction & its importance</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Practical <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="phe-prac1">Physical Fitness Test: SAI Khelo India Test, Brockport Physical Fitness Test (BPFT) for CWSN (any 4 items)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-prac2">Proficiency in Games and Sports (Skill of any one IOA recognised Sport/Game of Choice; for CWSN alternative options)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-prac3">Yogic Practices (or alternative Sport/Game for CWSN, different from Proficiency test)</div>
-        <div class="topic"><input type="checkbox" data-key="phe-prac4">Record File: Fitness tests administration (SAI Khelo India), Procedure/Benefits/Contraindications for any two Asanas per lifestyle disease, One Sport/Game (labelled diagram of Field & Equipment, Rules, Terminologies & Skills)</div>
-    </div>
-</div>
-                `
-            },
-            geography: {
-                name: 'Geography (Class 12) 2025-26',
-                content: `
-<div class="accordion">
-    <div class="accordion-header">Part A: Fundamentals of Human Geography <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">Unit 1: Human Geography – Nature and Scope <span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-1">Introduction to Human Geography</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-2">Approaches to study Human Geography: Regional and Systematic Geography, Dualism</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-3">Nature of Human Geography</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-4">Naturalisation of Humans and Humanisation of Nature</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-5">Schools of thought in Human Geography</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u1-6">Fields and subfields of Human Geography</div>
+<div class="container">
+    <header>
+        <div class="countdown-card">
+            <h2 class="text-muted text-sm" style="margin-bottom: 0.5rem">TIME UNTIL PHE EXAM (18 FEB 2026)</h2>
+            <div id="countdown-display" class="timer-display">
+                <div class="time-unit"><span class="value" id="days">00</span><span class="label">Days</span></div>
+                <div class="time-unit"><span class="value" id="hours">00</span><span class="label">Hours</span></div>
+                <div class="time-unit"><span class="value" id="mins">00</span><span class="label">Mins</span></div>
+                <div class="time-unit"><span class="value" id="secs">00</span><span class="label">Secs</span></div>
+            </div>
+            <div class="progress-container">
+                <div id="countdown-progress" class="progress-bar"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">
+                <span>Prep Start: 1 Feb</span>
+                <span id="progress-percent">0%</span>
+                <span>Exam Day</span>
             </div>
         </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 2: The World Population Distribution, Density and Growth <span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-1">Population-distribution and density</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-2">Factors influencing the distribution of population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-3">Population Growth</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-4">Components of Population change</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-5">Demographic Transition</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-6">Population Control Measures</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-7">Human development - concept; selected indicators</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-8">Growth and Development</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-9">The four pillars of Human Development</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-10">Approaches to Human Development</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-11">Measuring Human Development- HDI, HPI and GNH</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u2-12">International comparisons</div>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- Sidebar -->
+        <aside class="datesheet">
+            <div class="datesheet-header">Date Sheet</div>
+            <ul class="subject-list" id="subject-list">
+                <!-- Injected via JS -->
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="syllabus-panel">
+            <div class="syllabus-header">
+                <h2 id="current-subject-title">Subject</h2>
+                <div class="progress-badge" id="subject-progress">0% Completed</div>
             </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 3: Human Activities <span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u3-1">Primary activities – Concept and changing trends (Mining, Pastoral, Modern Agriculture, Gathering, Subsistence Agriculture)</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u3-2">Secondary activities – concept (Manufacturing: Types - Household, Small scale, Large scale, Agro-based and mineral-based industries)</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u3-3">Tertiary Activities – Concept (Trade, Transport, and Tourism; Services; People engaged in tertiary activities)</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u3-4">Quaternary activities – concept (People engaged in quaternary activities)</div>
+            <div id="syllabus-content">
+                <!-- Injected via JS -->
             </div>
-        </div>
-        <div class="accordion">
-            <div class="accordion-header">Unit 4: Transport, Communication, and Trade <span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-1">Land Transport – Roads, Railways</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-2">Satellite Communication and CyberSpace – Importance and usage for Geographical Information</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-3">International Trade – Bases and changing patterns</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-4">Ports as gateways of International Trade</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-5">Trans-Continental Railways</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-6">Water Transport – Inland Waterways</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-7">Major Ocean Routes</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-8">Use of GPS</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-9">Role of WTO in International Trade</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-10">Air Transport – Intercontinental Air Routes</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pa-u4-11">Oil and Gas Pipelines</div>
-            </div>
-        </div>
+        </main>
     </div>
 </div>
-<div class="accordion">
-    <div class="accordion-header">Part B: India - People and Economy <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="accordion">
-            <div class="accordion-header">Unit 1: Population and Settlements <span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-1">Distribution of Population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-2">Density of Population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-3">Growth of population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-4">Four distinct phases of population growth</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-5">Regional Variation in Population Growth</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-6">Population Composition: Rural – Urban Composition, Linguistic Composition, Religious Composition</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-7">Composition of Working Population</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-8">Rural settlements - types and distribution</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u1-9">Urban settlements - types, distribution, Functional Classification</div>
-            </div>
-        </div>
-        <!-- Add remaining Part B units similarly: Land Resources & Agriculture, Water Resources, Mineral & Energy, Planning, Transport & Communication, International Trade, Geographical Issues -->
-        <div class="accordion">
-            <div class="accordion-header">Unit 2: Land Resources and Agriculture <span>▶</span></div>
-            <div class="accordion-content">
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u2-1">Land resources- general land use</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u2-2">Agricultural Land Use in India</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u2-3">Geographical conditions and Distribution of Major Crops (Wheat, Rice, Tea, Coffee, Cotton, Jute, Sugarcane, Rubber)</div>
-                <div class="topic"><input type="checkbox" data-key="geo-pb-u2-4">Problems of Indian Agriculture</div>
-            </div>
-        </div>
-        <!-- ... continue for other units as per official -->
-    </div>
-</div>
-                `
-            },
-            finearts: {
-                name: 'Fine Arts (Class 12) 2025-26',
-                content: `
-<div class="accordion">
-    <div class="accordion-header">Theory - Miniature Paintings & Bengal School <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="fa-theory-1">The Rajasthani School (Maru-Ragini, Chaugan Players, Krishna on swing, Radha (Bani-Thani), Bharat Meets Rama at Chitrakuta)</div>
-        <div class="topic"><input type="checkbox" data-key="fa-theory-2">The Pahari School (Krishna with Gopis, Nand, Yashoda and Krishna with Kinsmen Going to Vrindavana)</div>
-        <div class="topic"><input type="checkbox" data-key="fa-theory-3">The Mughal School (Krishna Lifting Mount Govardhan, Falcon on a Bird-Rest, Kabir and Raidas, Marriage Procession of Dara Shukoh)</div>
-        <div class="topic"><input type="checkbox" data-key="fa-theory-4">The Deccan School (Hazrat Nizamuddin Auliya and Amir Khusro, Chand Bibi Playing Polo)</div>
-        <div class="topic"><input type="checkbox" data-key="fa-theory-5">The Bengal School (Journey’s End, Shiv and Sati, Radhika, Meghdoot)</div>
-        <div class="topic"><input type="checkbox" data-key="fa-theory-6">Modern Trends in Indian Art (Paintings, Graphic Prints, Sculptures)</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Practical <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="fa-prac1">Nature and Object study</div>
-        <div class="topic"><input type="checkbox" data-key="fa-prac2">Painting Composition</div>
-        <div class="topic"><input type="checkbox" data-key="fa-prac3">Portfolio Assessment (best paintings, nature studies, composition works)</div>
-    </div>
-</div>
-                `
-            },
-            english: {
-                name: 'English Core (Class 12) 2025-26',
-                content: `
-<div class="accordion">
-    <div class="accordion-header">Flamingo <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="eng-flam-prose">Prose: The Last Lesson, Lost Spring, Deep Water, The Rattrap, Indigo, Poets and Pancakes, The Interview, Going Places</div>
-        <div class="topic"><input type="checkbox" data-key="eng-flam-poetry">Poetry: My Mother at Sixty-Six, Keeping Quiet, A Thing of Beauty, A Roadside Stand, Aunt Jennifer’s Tigers</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Vistas <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="eng-vistas1">The Third Level</div>
-        <div class="topic"><input type="checkbox" data-key="eng-vistas2">The Tiger King</div>
-        <div class="topic"><input type="checkbox" data-key="eng-vistas3">Journey to the End of the Earth</div>
-        <div class="topic"><input type="checkbox" data-key="eng-vistas4">The Enemy</div>
-        <div class="topic"><input type="checkbox" data-key="eng-vistas5">On the Face of It</div>
-        <div class="topic"><input type="checkbox" data-key="eng-vistas6">Memories of Childhood</div>
-    </div>
-</div>
-                `
-            },
-            polsci: {
-                name: 'Political Science (Class 12) 2025-26',
-                content: `
-<div class="accordion">
-    <div class="accordion-header">Part A: Contemporary World Politics <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="polsci-pa-1">The End of Bipolarity</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pa-2">Contemporary Centres of Power</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pa-3">Contemporary South Asia</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pa-4">International Organizations</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pa-5">Security in the Contemporary World</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pa-6">Environment and Natural Resources</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pa-7">Globalisation</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Part B: Politics in India since Independence <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="polsci-pb-1">Challenges of Nation-Building</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pb-2">Era of One-Party Dominance</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pb-3">Politics of Planned Development</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pb-4">India’s External Relations</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pb-5">Challenges to and Restoration of the Congress System</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pb-6">The Crisis of Democratic Order</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pb-7">Regional Aspirations</div>
-        <div class="topic"><input type="checkbox" data-key="polsci-pb-8">Recent Developments in Indian Politics</div>
-    </div>
-</div>
-                `
-            },
-            history: {
-                name: 'History (Class 12) 2025-26',
-                content: `
-<div class="accordion">
-    <div class="accordion-header">Themes in Indian History Part I <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="hist-pi-1">Bricks, Beads and Bones: The Harappan Civilisation</div>
-        <div class="topic"><input type="checkbox" data-key="hist-pi-2">Kings, Farmers and Towns: Early States and Economies (c.600 BCE-600 CE)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-pi-3">Kingship, Caste and Class: Early Societies (c.600 BCE-600 CE)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-pi-4">Thinkers, Beliefs and Buildings: Cultural Developments (c.600 BCE-600 CE)</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Themes in Indian History Part II <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="hist-pii-5">Through the Eyes of Travellers: Perceptions of Society (c. tenth to seventeenth centuries)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-pii-6">Bhakti–Sufi Traditions: Changes in Religious Beliefs and Devotional Texts (c. eighth to eighteenth centuries)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-pii-7">An Imperial Capital – Vijayanagar (c. fourteenth to sixteenth centuries)</div>
-        <div class="topic"><input type="checkbox" data-key="hist-pii-8">Peasants, Zamindars and the State: Agrarian Society and the Mughal Empire (c. sixteenth–seventeenth centuries)</div>
-    </div>
-</div>
-<div class="accordion">
-    <div class="accordion-header">Themes in Indian History Part III <span>▶</span></div>
-    <div class="accordion-content">
-        <div class="topic"><input type="checkbox" data-key="hist-piii-9">Colonialism and the Countryside: Exploring Official Archives</div>
-        <div class="topic"><input type="checkbox" data-key="hist-piii-10">Rebels and the Raj: 1857 Revolt and its Representations</div>
-        <div class="topic"><input type="checkbox" data-key="hist-piii-11">Mahatma Gandhi and the Nationalist Movement: Civil Disobedience and Beyond</div>
-        <div class="topic"><input type="checkbox" data-key="hist-piii-12">Framing the Constitution: The Beginning of a New Era</div>
-    </div>
-</div>
-                `
+
+<script>
+    // --- Data ---
+    const EXAMS = [
+        { id: 'phe', name: 'Physical Education', date: '2026-02-18', displayDate: '18 Feb' },
+        { id: 'geo', name: 'Geography', date: '2026-02-26', displayDate: '26 Feb' },
+        { id: 'arts', name: 'Fine Arts', date: '2026-02-27', displayDate: '27 Feb' },
+        { id: 'eng', name: 'English', date: '2026-03-12', displayDate: '12 Mar' },
+        { id: 'pol', name: 'Political Science', date: '2026-03-23', displayDate: '23 Mar' },
+        { id: 'hist', name: 'History', date: '2026-03-30', displayDate: '30 Mar' }
+    ];
+
+    const SYLLABUS_DB = {
+        'phe': {
+            parts: [
+                {
+                    name: "Theory",
+                    units: [
+                        {
+                            title: "Unit I: Management of Sporting Events",
+                            topics: [
+                                { text: "Functions of Sports Events Management (Planning, Organising, Staffing, Directing & Controlling)" },
+                                { text: "Various Committees & their Responsibilities (pre; during & post)" },
+                                { 
+                                    text: "Fixtures and its Procedures",
+                                    sub: [
+                                        "Knock-Out (Bye & Seeding)", 
+                                        "League (Staircase, Cyclic, Tabular Method)",
+                                        "Combination tournaments"
+                                    ]
+                                },
+                                { text: "Intramural & Extramural tournaments – Meaning, Objectives & Its Significance" },
+                                { text: "Community sports program (Sports Day, Health Run, Run for Fun, Run for Specific Cause & Run for Unity)" }
+                            ]
+                        },
+                        {
+                            title: "Unit II: Children & Women in Sports",
+                            topics: [
+                                { text: "Exercise guidelines of WHO for different age groups" },
+                                { 
+                                    text: "Common Postural Deformities & Corrective Measures", 
+                                    sub: ["Knock Knee", "Flat Foot", "Round Shoulders", "Lordosis", "Kyphosis", "Scoliosis", "Bow Legs"] 
+                                },
+                                { text: "Women’s participation in Sports – Physical, Psychological, and social benefits" },
+                                { text: "Special consideration (Menarche & Menstrual Dysfunction)" },
+                                { text: "Female Athletes Triad (Osteoporosis, Amenorrhea, Eating Disorders)" }
+                            ]
+                        },
+                        {
+                            title: "Unit III: Yoga as Preventive measure for Lifestyle Disease",
+                            topics: [
+                                { text: "Obesity: Procedure, Benefits & Contraindications for Tadasana, Katichakrasana, Pavanmuktasana, Matsayasana, Halasana, Pachimottansana, Ardha–Matsyendrasana, Dhanurasana, Ushtrasana, Suryabedhan pranayama" },
+                                { text: "Diabetes: Procedure, Benefits & Contraindications for Katichakrasana, Pavanmuktasana, Bhujangasana, Shalabhasana, Dhanurasana, Supta-vajarasana, Paschimottanasana, Ardha-Mastendrasana, Mandukasana, Gomukasana, Yogmudra, Ushtrasana, Kapalabhati" },
+                                { text: "Asthma: Procedure, Benefits & Contraindications for Tadasana, Urdhwahastottansana, UttanMandukasana, Bhujangasana, Dhanurasana, Ushtrasana, Vakrasana, Kapalbhati, Gomukhasana, Matsyaasana, Anuloma-Viloma" },
+                                { text: "Hypertension: Procedure, Benefits & Contraindications for Tadasana, Katichakransan, Uttanpadasana, Ardha Halasana, Sarala Matyasana, Gomukhasana, UttanMandukasana, Vakrasana, Bhujangasana, Makarasana, Shavasana, Nadi shodhanapranayam, Sitlipranayam" },
+                                { text: "Back Pain and Arthritis: Procedure, Benefits & Contraindications for Tadasana, Urdhawahastootansana, Ardh-Chakrasana, Ushtrasana, Vakrasana, Sarala Maysyendrsana, Bhujangasana, Gomukhasana, Bhadrasana, Makarasana, Nadi-Shodhana pranayama" }
+                            ]
+                        },
+                        {
+                            title: "Unit IV: PE & Sports for CWSN (Children with Special Needs - Divyang)",
+                            topics: [
+                                { text: "Organizations promoting Disability Sports (Special Olympics; Paralympics; Deaflympics)" },
+                                { text: "Concept of Classification and Divisioning in Sports" },
+                                { text: "Concept of Inclusion in sports, its need, and Implementation" },
+                                { text: "Advantages of Physical Activities for children with special needs" },
+                                { text: "Strategies to make Physical Activities assessable for children with special needs" }
+                            ]
+                        },
+                        {
+                            title: "Unit V: Sports & Nutrition",
+                            topics: [
+                                { text: "Concept of balanced diet and nutrition" },
+                                { text: "Macro and Micro Nutrients: Food sources & functions" },
+                                { text: "Nutritive & Non-Nutritive Components of Diet" },
+                                { text: "Eating for Weight control – A Healthy Weight, The Pitfalls of Dieting, Food Intolerance, & Food Myths" },
+                                { text: "Importance of Diet in Sports-Pre, During and Post competition Requirements" }
+                            ]
+                        },
+                        {
+                            title: "Unit VI: Test & Measurement in Sports",
+                            topics: [
+                                { 
+                                    text: "Fitness Test - SAI Khelo India Fitness Test in school",
+                                    sub: [
+                                        "Age group 5-8 yrs/ class 1-3: BMI, Flamingo Balance Test, Plate Tapping Test",
+                                        "Age group 9-18yrs/ class 4-12: BMI, 50mt Speed test, 600mt Run/Walk, Sit & Reach flexibility test, Strength Test (Partial Abdominal Curl Up, Push-Ups for boys, Modified Push-Ups for girls)"
+                                    ]
+                                },
+                                { text: "Measurement of Cardio-Vascular Fitness: Harvard Step Test" },
+                                { text: "Computing Basal Metabolic Rate (BMR)" },
+                                { 
+                                    text: "Rikli & Jones - Senior Citizen Fitness Test",
+                                    sub: [
+                                        "Chair Stand Test for lower body strength",
+                                        "Arm Curl Test for upper body strength",
+                                        "Chair Sit & Reach Test for lower body flexibility",
+                                        "Back Scratch Test for upper body flexibility",
+                                        "Eight Foot Up & Go Test for agility",
+                                        "Six Minute Walk Test for Aerobic Endurance"
+                                    ]
+                                },
+                                { text: "Johnsen – Methney Test of Motor Educability (Front Roll, Roll, Jumping Half-Turn, Jumping full turn)" }
+                            ]
+                        },
+                        {
+                            title: "Unit VII: Physiology & Injuries in Sports",
+                            topics: [
+                                { text: "Physiological factors determining components of physical fitness" },
+                                { text: "Effect of exercise on Muscular System" },
+                                { text: "Effect of exercise on Cardio-Respiratory System" },
+                                { text: "Physiological changes due to aging" },
+                                { 
+                                    text: "Sports injuries: Classification",
+                                    sub: [
+                                        "Soft Tissue Injuries: Abrasion, Contusion, Laceration, Incision, Sprain & Strain",
+                                        "Bone & Joint Injuries: Dislocation",
+                                        "Fractures: Green Stick, Comminuted, Transverse, Oblique & Impacted"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            title: "Unit VIII: Biomechanics & Sports",
+                            topics: [
+                                { text: "Newton’s Law of Motion & its application in sports" },
+                                { text: "Types of Levers and their application in Sports" },
+                                { text: "Equilibrium – Dynamic & Static and Centre of Gravity and its application in sports" },
+                                { text: "Friction & Sports" },
+                                { text: "Projectile in Sports" }
+                            ]
+                        },
+                        {
+                            title: "Unit IX: Psychology & Sports",
+                            topics: [
+                                { text: "Personality; its definition & types (Jung Classification & Big Five Theory)" },
+                                { text: "Motivation, its type & techniques" },
+                                { text: "Exercise Adherence: Reasons, Benefits & Strategies for Enhancing it" },
+                                { text: "Meaning, Concept & Types of Aggressions in Sports" },
+                                { text: "Psychological Attributes in Sports – Self Esteem, Mental Imagery, Self Talk, Goal Setting" }
+                            ]
+                        },
+                        {
+                            title: "Unit X: Training in Sports",
+                            topics: [
+                                { text: "Concept of Talent Identification and Talent Development in Sports" },
+                                { text: "Introduction to Sports Training Cycle – Micro, Meso, Macro Cycle" },
+                                { text: "Types & Method to Develop - Strength, Endurance and Speed" },
+                                { text: "Types & Method to Develop – Flexibility and Coordinative Ability" },
+                                { text: "Circuit Training - Introduction & its importance" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        'geo': {
+            parts: [
+                {
+                    name: "Part A: Fundamentals of Human Geography",
+                    units: [
+                        {
+                            title: "Unit 1: Human Geography – Nature and Scope",
+                            topics: [
+                                { text: "Nature and Scope of Human Geography" }
+                            ]
+                        },
+                        {
+                            title: "Unit 2: People",
+                            topics: [
+                                { text: "The World Population – Distribution, Density, and Growth" },
+                                { text: "Population Change: Components, Demographic Transition" },
+                                { text: "International Comparisons" },
+                                { text: "Human Development – Concept" }
+                            ]
+                        },
+                        {
+                            title: "Unit 3: Human Activities",
+                            topics: [
+                                { 
+                                    text: "Primary Activities", 
+                                    sub: ["Concept & Trends", "Mining", "Pastoral", "Modern Agriculture", "Gathering", "Subsistence Agriculture"] 
+                                },
+                                { 
+                                    text: "Secondary Activities", 
+                                    sub: ["Concept", "Manufacturing Types", "Household vs Small vs Large Scale", "Agro-based vs Mineral-based"] 
+                                },
+                                { 
+                                    text: "Tertiary Activities", 
+                                    sub: ["Concept", "Trade, Transport, Tourism", "Services"] 
+                                },
+                                { text: "Quaternary Activities – Concept" }
+                            ]
+                        },
+                        {
+                            title: "Unit 4: Transport, Communication & Trade",
+                            topics: [
+                                { text: "Land Transport – Roads, Railways" },
+                                { text: "Satellite Communication & CyberSpace" },
+                                { text: "International Trade – Bases & Patterns" },
+                                { text: "Ports as Gateways" },
+                                { text: "Trans-Continental Railways" },
+                                { text: "Water Transport – Inland Waterways" },
+                                { text: "Major Ocean Routes" },
+                                { text: "Use of GPS" },
+                                { text: "Role of WTO in International Trade" },
+                                { text: "Air Transport – Intercontinental Routes" },
+                                { text: "Oil and Gas Pipelines" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "Part B: India – People and Economy",
+                    units: [
+                        {
+                            title: "Unit 6: People",
+                            topics: [
+                                { text: "Population: Distribution, Density, Growth" },
+                                { 
+                                    text: "Composition of Population",
+                                    sub: ["Linguistic", "Religious", "Sex"]
+                                },
+                                { text: "Rural-urban and Occupational-regional Variations" }
+                            ]
+                        },
+                        {
+                            title: "Unit 7: Human Settlements",
+                            topics: [
+                                { text: "Rural Settlements (Types, Distribution)" },
+                                { text: "Urban Settlements (Types, Distribution, Functional Class)" }
+                            ]
+                        },
+                        {
+                            title: "Unit 8: Resources & Development",
+                            topics: [
+                                { text: "Land Resources – General Land Use" },
+                                { text: "Agricultural Land Use" },
+                                { text: "Major Crops (Wheat, Rice, Tea, Coffee, Cotton, Jute, Sugarcane, Rubber)" },
+                                { text: "Agricultural Development and Problems" },
+                                { 
+                                    text: "Water Resources",
+                                    sub: ["Irrigation, Domestic, Industrial", "Scarcity & Conservation", "Rain Water Harvesting", "Watershed Management"]
+                                },
+                                { text: "Mineral & Energy Resources (Metallic & Non-metallic)" },
+                                { text: "Conventional & Non-conventional Energy Sources" },
+                                { text: "Planning in India – Target group area planning" },
+                                { text: "Idea of Sustainable Development" }
+                            ]
+                        },
+                        {
+                            title: "Unit 9: Transport, Communication & Int. Trade",
+                            topics: [
+                                { text: "Transport: Roads, Railways, Waterways, Airways, Pipelines" },
+                                { text: "Geographical Information & Communication Networks" },
+                                { text: "International Trade – Changing Pattern" },
+                                { text: "Sea Ports and their Hinterland and Airports" }
+                            ]
+                        },
+                        {
+                            title: "Unit 10: Geographical Issues",
+                            topics: [
+                                { text: "Urbanization & Problems of Slums" },
+                                { text: "Land Degradation" },
+                                { text: "Environmental Pollution" },
+                                { text: "Rural – Urban Migration" },
+                                { text: "Urban-waste Disposal" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        'arts': {
+            parts: [
+                {
+                    name: "Theory (History of Indian Art)",
+                    units: [
+                        {
+                            title: "Unit 1: The Rajasthani School of Miniature Painting",
+                            topics: [
+                                { text: "Introduction to Indian Miniature Schools" },
+                                { text: "Origin, development and significant features of Rajasthani School" },
+                                { text: "Sub-Schools: Mewar, Malwa, Jaipur, Bundi, Kota, Bikaner, Kishangarh" },
+                                { 
+                                    text: "Paintings", 
+                                    sub: [
+                                        "Maru-Ragini (Sahibdin - Mewar)",
+                                        "Radha / Bani-Thani (Nihal Chand - Kishangarh)",
+                                        "Bharat Meets Rama (Guman - Jaipur)"
+                                    ] 
+                                }
+                            ]
+                        },
+                        {
+                            title: "Unit 2: The Mughal School of Miniature Painting",
+                            topics: [
+                                { text: "Introduction, origin, development, features of Mughal School" },
+                                { 
+                                    text: "Paintings",
+                                    sub: [
+                                        "Krishna Lifting Mount Govardhan (Miskin - Akbar)",
+                                        "Baber Crossing the River Sone (Jagannath - Akbar)",
+                                        "Jahangir Holding the Picture of Madonna (Abul Hassan - Jahangir)",
+                                        "Falcon on a Bird-Rest (Ustad Mansoor - Jahangir)",
+                                        "Kabir and Raidas (Ustad Faquirullah Khan - Shahjahan)",
+                                        "Marriage Procession of Dara Shikoh (Haji Madni - Provincial Mughal)"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            title: "Unit 3: Assamese Manuscript Painting",
+                            topics: [
+                                { text: "Introduction and Background (Vaishnava saint Srimanta Shankardeva context)" },
+                                { text: "Origin, development and main features" },
+                                { 
+                                    text: "Paintings",
+                                    sub: [
+                                        "Hastibidyarnava (Dilbar)",
+                                        "Chitra Bhagawata",
+                                        "Lav Kushar Yudha",
+                                        "Mahabharata subject (Rajagharia/Royal School)"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            title: "Unit 4: The Bengal School of Painting & Contemporary Trends",
+                            topics: [
+                                { text: "Evolution of the Indian National Flag (1906, 1921, 1947)" },
+                                { text: "Bengal School: Origin, Development and Features" },
+                                { text: "Contribution of Indian Artists in Freedom Movement" },
+                                { 
+                                    text: "Study of Artists and their Paintings",
+                                    sub: [
+                                        "Raja Ravi Varma",
+                                        "Abanindra Nath Tagore",
+                                        "Rabindra Nath Tagore",
+                                        "Nandalal Bose",
+                                        "Amrita Sher Gill"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            title: "Unit 5: The Contemporary Trends in Indian Art",
+                            topics: [
+                                { 
+                                    text: "Study of Artists",
+                                    sub: [
+                                        "Binod Behari Mukherjee",
+                                        "Ramkinker Baij",
+                                        "M.F. Hussain",
+                                        "Somenath Hore",
+                                        "Mukta Bordoloi",
+                                        "Asu Deb",
+                                        "Sobha Brahma",
+                                        "Romesh Ghosh",
+                                        "Troilokya Dutta",
+                                        "Neelpawan Barua",
+                                        "Benu Mishra",
+                                        "Pranab Baruah"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+
+    // --- State Management ---
+    const STATE = {
+        currentSubject: 'phe',
+        progress: JSON.parse(localStorage.getItem('examPrepProgress')) || {}
+    };
+
+    // --- Core Functions ---
+
+    function saveProgress() {
+        localStorage.setItem('examPrepProgress', JSON.stringify(STATE.progress));
+        updateProgressBar();
+    }
+
+    function toggleCheck(id) {
+        if (STATE.progress[id]) {
+            delete STATE.progress[id];
+        } else {
+            STATE.progress[id] = true;
+        }
+        saveProgress();
+        // Re-render specific checkbox logic usually, but here we let the change event handle style
+    }
+
+    function calculateSubjectProgress(subjectId) {
+        const data = SYLLABUS_DB[subjectId];
+        if (!data) return 0;
+        
+        let total = 0;
+        let completed = 0;
+
+        data.parts.forEach(part => {
+            part.units.forEach(unit => {
+                unit.topics.forEach((topic, tIndex) => {
+                    // Check main topic
+                    const tId = `${subjectId}-${part.name}-${unit.title}-${tIndex}`;
+                    total++;
+                    if (STATE.progress[tId]) completed++;
+
+                    // Check subtopics
+                    if (topic.sub) {
+                        topic.sub.forEach((sub, sIndex) => {
+                            const sId = `${tId}-sub-${sIndex}`;
+                            total++;
+                            if (STATE.progress[sId]) completed++;
+                        });
+                    }
+                });
+            });
+        });
+
+        return total === 0 ? 0 : Math.round((completed / total) * 100);
+    }
+
+    function updateProgressBar() {
+        const p = calculateSubjectProgress(STATE.currentSubject);
+        document.getElementById('subject-progress').textContent = `${p}% Completed`;
+    }
+
+    // --- Renderers ---
+
+    function renderDateSheet() {
+        const list = document.getElementById('subject-list');
+        list.innerHTML = EXAMS.map(exam => `
+            <li class="subject-item ${exam.id === STATE.currentSubject ? 'active' : ''}" 
+                onclick="switchSubject('${exam.id}')">
+                <span>${exam.name}</span>
+                <span class="subject-date">${exam.displayDate}</span>
+            </li>
+        `).join('');
+    }
+
+    function renderSyllabus() {
+        const container = document.getElementById('syllabus-content');
+        const title = document.getElementById('current-subject-title');
+        const subjectData = SYLLABUS_DB[STATE.currentSubject];
+        const subjectInfo = EXAMS.find(e => e.id === STATE.currentSubject);
+
+        title.textContent = subjectInfo.name;
+        
+        if (!subjectData) {
+            container.innerHTML = `
+                <div style="padding: 2rem; text-align: center; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 8px;">
+                    Syllabus content pending upload.
+                </div>
+            `;
+            document.getElementById('subject-progress').textContent = "N/A";
+            return;
+        }
+
+        let html = '';
+
+        subjectData.parts.forEach((part, pIndex) => {
+            if (part.name !== "Complete Syllabus" && part.name !== "Theory" && part.name !== "Theory (History of Indian Art)") {
+                html += `<div class="part-section"><div class="part-title">${part.name}</div>`;
+            } else {
+                html += `<div class="part-section">`;
             }
+
+            part.units.forEach((unit, uIndex) => {
+                html += `
+                    <div class="unit-card">
+                        <div class="unit-header" onclick="toggleAccordion(this)">
+                            <span class="unit-title">${unit.title}</span>
+                            <div class="toggle-icon"></div>
+                        </div>
+                        <div class="unit-content">
+                            <div class="topic-list">
+                `;
+
+                unit.topics.forEach((topic, tIndex) => {
+                    const topicId = `${STATE.currentSubject}-${part.name}-${unit.title}-${tIndex}`;
+                    const isChecked = STATE.progress[topicId] ? 'checked' : '';
+                    
+                    html += `
+                        <div class="topic-item">
+                            <div class="topic-header">
+                                <input type="checkbox" class="custom-checkbox" id="${topicId}" ${isChecked} onchange="toggleCheck('${topicId}')">
+                                <label for="${topicId}" class="topic-label">${topic.text}</label>
+                            </div>
+                    `;
+
+                    if (topic.sub) {
+                        html += `<div class="sub-topic-list">`;
+                        topic.sub.forEach((sub, sIndex) => {
+                            const subId = `${topicId}-sub-${sIndex}`;
+                            const subChecked = STATE.progress[subId] ? 'checked' : '';
+                            html += `
+                                <div class="topic-header" style="margin-bottom: 0.5rem;">
+                                    <input type="checkbox" class="custom-checkbox" id="${subId}" ${subChecked} onchange="toggleCheck('${subId}')">
+                                    <label for="${subId}" class="topic-label text-sm">${sub}</label>
+                                </div>
+                            `;
+                        });
+                        html += `</div>`;
+                    }
+
+                    html += `</div>`;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+        });
+
+        container.innerHTML = html;
+        updateProgressBar();
+    }
+
+    function switchSubject(id) {
+        STATE.currentSubject = id;
+        renderDateSheet(); // To update active class
+        renderSyllabus();
+    }
+
+    function toggleAccordion(header) {
+        const card = header.parentElement;
+        const content = header.nextElementSibling;
+        
+        const isExpanded = card.classList.contains('expanded');
+        
+        if (isExpanded) {
+            content.style.height = '0px';
+            card.classList.remove('expanded');
+        } else {
+            // Close others if we want "one open at a time" feel, but standard accordion usually allows multiple.
+            // Let's keep it allowing multiple for study comparison.
+            content.style.height = content.scrollHeight + 'px';
+            card.classList.add('expanded');
+        }
+    }
+
+    // --- Countdown Timer ---
+    function initCountdown() {
+        const start = new Date('2026-02-01T00:00:00');
+        const end = new Date('2026-02-18T00:00:00');
+        const totalDuration = end - start;
+
+        const els = {
+            d: document.getElementById('days'),
+            h: document.getElementById('hours'),
+            m: document.getElementById('mins'),
+            s: document.getElementById('secs'),
+            bar: document.getElementById('countdown-progress'),
+            pct: document.getElementById('progress-percent')
         };
 
-        function loadProgress() {
-            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                const key = cb.dataset.key;
-                cb.checked = localStorage.getItem(key) === 'true';
-                cb.addEventListener('change', () => localStorage.setItem(key, cb.checked));
-            });
-        }
-
-        document.getElementById('syllabus-panel').addEventListener('click', e => {
-            const header = e.target.closest('.accordion-header');
-            if (header) {
-                const content = header.nextElementSibling;
-                const isOpen = content.classList.toggle('open');
-                content.style.maxHeight = isOpen ? content.scrollHeight + 'px' : '0';
-                header.querySelector('span').textContent = isOpen ? '▼' : '▶';
-            }
-        });
-
-        document.querySelectorAll('.subject-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                const sub = card.dataset.subject;
-                const data = syllabi[sub];
-                if (data) {
-                    document.getElementById('syllabus-panel').innerHTML = `<h2>${data.name}</h2>${data.content}`;
-                    loadProgress();
-                }
-            });
-        });
-
-        const start = new Date('2026-02-01');
-        const end = new Date('2026-02-18');
-        function updateCountdown() {
+        function tick() {
             const now = new Date();
-            if (now > end) {
-                document.getElementById('countdown').textContent = 'Exam Day - Good Luck!';
-                document.getElementById('progress-fill').style.width = '100%';
+            
+            if (now >= end) {
+                document.querySelector('.countdown-card h2').textContent = "EXAM DAY IS HERE";
+                els.bar.style.width = '100%';
+                els.pct.textContent = '100%';
+                els.d.textContent = '00';
+                els.h.textContent = '00';
+                els.m.textContent = '00';
+                els.s.textContent = '00';
                 return;
             }
-            const total = end - start;
-            const passed = now - start;
-            document.getElementById('progress-fill').style.width = Math.min(100, (passed / total) * 100) + '%';
-            const rem = end - now;
-            const d = Math.floor(rem / 86400000);
-            const h = Math.floor((rem % 86400000) / 3600000);
-            const m = Math.floor((rem % 3600000) / 60000);
-            const s = Math.floor((rem % 60000) / 1000);
-            document.getElementById('countdown').textContent = `${d}d ${h}h ${m}m ${s}s to PHE Exam`;
-        }
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
 
-        // Auto-load PHE
-        document.querySelector('[data-subject="phe"]').click();
-    </script>
+            const remaining = end - now;
+            const elapsed = now - start;
+            
+            // Time calc
+            const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+
+            // Update UI
+            els.d.textContent = days.toString().padStart(2, '0');
+            els.h.textContent = hours.toString().padStart(2, '0');
+            els.m.textContent = mins.toString().padStart(2, '0');
+            els.s.textContent = secs.toString().padStart(2, '0');
+
+            // Progress Bar
+            let pct = (elapsed / totalDuration) * 100;
+            pct = Math.max(0, Math.min(100, pct)); // clamp
+            
+            els.bar.style.width = `${pct}%`;
+            els.pct.textContent = `${Math.round(pct)}%`;
+        }
+
+        tick();
+        setInterval(tick, 1000);
+    }
+
+    // --- Init ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initCountdown();
+        renderDateSheet();
+        renderSyllabus();
+    });
+
+</script>
 </body>
 </html>

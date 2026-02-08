@@ -157,6 +157,45 @@
             100% { opacity: 0; transform: rotate(-45deg) translateX(-1000px); width: 0px; }
         }
 
+        /* Footer */
+        .footer-love {
+            text-align: center;
+            padding: 3rem 1rem 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.05em;
+            position: relative;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-family: 'Segoe UI', sans-serif;
+            text-transform: lowercase;
+        }
+
+        .neon-heart {
+            color: #ff00ff; /* Neon Magenta */
+            font-size: 1.4rem;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            /* Neon Glow Effect */
+            text-shadow: 
+                0 0 5px #ff00ff,
+                0 0 10px #ff00ff,
+                0 0 20px #ff00ff,
+                0 0 40px #ff1493;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); opacity: 0.7; }
+            15% { transform: scale(1.25); opacity: 1; }
+            30% { transform: scale(1); opacity: 0.7; }
+            45% { transform: scale(1.25); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
         /* Utils */
         .container {
             max-width: 1200px;
@@ -589,6 +628,11 @@
             </div>
         </main>
     </div>
+
+    <!-- Footer with love -->
+    <footer class="footer-love">
+        with love from kuldeep to tanvi <span class="neon-heart">❤</span>
+    </footer>
 </div>
 
 <script>
